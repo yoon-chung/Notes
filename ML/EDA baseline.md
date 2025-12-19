@@ -50,7 +50,7 @@
 
 - df['col name'].fillna(0, inplace=True) : na를 0으로 채워줌
 
-- df.dropna(axis=0, inplace=True) : axis=0일 경우 결측치가 있는 행을, axis=1이면 열을 전부 제거
+- df.dropna(axis=0, inplace=True) : axis=0일 경우 결측치가 있는 행을, axis=1이면 열을 전부 제거 #.sum()일때는 반대(axis=0: 열, axis=1: 행 합계)
 
 - df.isnull().sum() : 결측치 제거 확인
 
