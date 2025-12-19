@@ -126,9 +126,7 @@
 
 - Correlation
 
-    corr = df.corr(numeric_only=True)  # 각 변수별 상관계수를 계산하여 행렬형태로 나타냄. (피어슨)
-
-                                       # numeric_only는 숫자형 변수만 상관계수를 계산하도록 하는 옵션
+    corr = df.corr(numeric_only=True)  # 피어슨 상관계수를 계산하여 행렬형태로 나타냄, numeric_only는 숫자형 변수만 계산하도록 하는 옵션.
 
     mask = np.ones_like(corr, dtype=bool) # figure에서 생략될 부분을 지정하는 mask 행렬 생성
 
