@@ -147,6 +147,8 @@
 
 ### 5-1. log 변환
 
+- 분포의 꼬리가 길어 한쪽으로 치우칠 때, 정규분포에 가깝게 하기 위해 log scale로 변환
+  
 - from sklearn.preprocessing import scale
 
 - log 변환
