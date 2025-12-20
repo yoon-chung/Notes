@@ -79,7 +79,7 @@ plt.show()
 ```shell
 corr = data.corr(numeric_only=True)
 
- #매트릭스 우측 상단을 모두 True 인 1로, 하단을 False 인 0으로 변환, True/False mask 배열로 변환
+# 매트릭스 우측 상단을 모두 True 인 1로, 하단을 False 인 0으로 변환, True/False mask 배열로 변환
 mask = np.ones_like(corr, dtype=bool)  
 mask = np.triu(mask) 
 
