@@ -32,39 +32,63 @@ warnings.filterwarnings(action='ignore')
 
 
 ## 3. DF 확인
+```shell
+# 컬럼 전체를 리스트로 반환
+df.columns
 
-- df.columns : 컬럼 전체를 리스트로 반환
+# 행 인덱스 정보 제공 
+df.index 
+df1 = df[df['col'] == 'NIKE'].copy() # col내용이 'NIKE'인 컬럼정보만 선택, 복사
+df['new col name'] = df.index # 설정된 인덱스를 하나의 컬럼으로 추가
 
-- df.index : 행 인덱스 정보 제공
+# 행, 열의 크기
+df.shape
 
-- df.shape : 행, 열의 크기 
+# 컬럼 정보와 데이터 타입, 총 행의 갯수 요약하여 보기 
+df.info()
 
-- df.info() : 컬럼 정보와 데이터 타입, 총 행의 갯수 요약하여 보기 
+# 컬럼별 기초 통계량 확인
+df.describe()
 
-- df.describe() : 컬럼별 기초 통계량 확인
+# 중복 제거하고 리스트로 반환
+df['col'].unique()
 
-- df['col'].unique() : 중복 제거하고 리스트로 반환
+# 중복 제거하고 갯수 반환
+df['col'].value_counts() 
 
-- df['col'].value_counts() : 중복 제거하고 갯수 반환
+# 지정한 컬럼의 데이터에 대하여 행을 슬라이싱하여 데이터 반환  
+df['col'][:]
 
-- df['col'][:] : 지정한 컬럼의 데이터에 대하여 행을 슬라이싱하여 데이터 반환  
+# 지정한 행번호와 열번호(슬라이싱 가능)의 데이터를 반환
+df.iloc[row no, col no]
 
-- df.iloc[row no, col no] : 지정한 행번호와 열번호(슬라이싱 가능)의 데이터를 반환
+# 지정한 컬럼들을 기준으로 행번호(슬라이싱 가능)에 해당하는 데이터를 반환
+df.loc[row no, ['col1 name', 'col2 name', ]] 
+df = df.loc["2025-01-01":"2025-03-01"]
 
-- df.loc[row no, ['col1 name', 'col2 name', ]] : 지정한 컬럼들을 기준으로 행번호(슬라이싱 가능)에 해당하는 데이터를 반환
+# 슬라이싱 한 구간만큼의 컬럼명들을 리스트로 반환
+df.columns[:]
 
-- df.columns[:] : 슬라이싱 한 구간만큼의 컬럼명들을 리스트로 반환
+# 날짜-> 숫자
+df['Date'] = df['Date'].map(mpdates.date2num)
 
+# 숫자 -> 날짜
+ax.xaxis.set_major_formatter(mpdates.DateFormatter('%Y-%m-%d')) # 시각화
+```
 
 ## 4. 전처리 
 
 ### 4-1. 결측치 확인
+```shell
+df.isnull(), df.isna()
 
-- df.isnull(), df.isna()
+# null이 하나라도 있는 행을 불리안 인덱싱 반환
+df.isnull().sum(axis=1) > 0 # axis = 1(행) 
+df.isna().sum(axis=1) > 0 # axis = 1(행)
 
-- df.isnull().sum(axis=1) > 0 # axis = 1(행) null이 하나라도 있는 행을 불리안 인덱싱 반환
-- df.isna().sum(axis=1) > 0 # axis = 1(행) 
-
+# 특정컬럼에서 몇개 열이 결측치 영향 받는
+display(df[df['col'].isna() == True])
+```
 
 ### 4-2. 결측치 제거
 
@@ -90,24 +114,28 @@ warnings.filterwarnings(action='ignore')
 
 ### 4-3. 이상치 확인 (Boxplot)
 
-- import matplotlib.pyplot as plt
+```shell
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set(style="whitegrid")
+plt.figure(figsize=(10, 5))
+sns.boxplot(data=df, y='target_feature')
+# sns.boxplot(data=df[["col1", "col2", "col3", "col4"]], orient="v")
+plt.title("title of boxplot")
+plt.ylabel("Price")
+plt.show()  
 
-- import seaborn as sns
-
-- sns.boxplot(data=df, y='target_feature')  
-
-  plt.show()  
-
-- 이상치 제거를 위한 분위수 확인하기
-
-    Q3 = df['target_feature'].quantile(q=0.75)  # 75% 분위수
-
-    Q1 = df['target_feature'].quantile(q=0.25)  # 25% 분위수
-
-    IQR = Q3-Q1
-
-    print(Q1, Q3, IQR)
-​
+# 이상치 제거를 위한 분위수 확인하기
+Q3 = df['target_feature'].quantile(q=0.75)  # 75% 분위수
+Q1 = df['target_feature'].quantile(q=0.25)  # 25% 분위수
+IQR = Q3-Q1
+print(Q1, Q3, IQR)
+```
+### 4-4. 이상치 대체
+```shell
+imputation = int(df.loc["2024-01-01":"2024-03-01"]["col"].mean())
+df.loc[df["col"] <= 0, "col"] = imputation   # 마이너스 값을 이전 기간 평균값으로 대체
+```
 
 ## 5. 시각화
 
@@ -147,6 +175,10 @@ warnings.filterwarnings(action='ignore')
 
     plt.show()
 
+```shell
+# 선형 그래프
+sns.lineplot(data=df['col'], label='Price')  # 주식가격 흐름 확
+```
 ​
 ### 5-3. 데이터의 상관관계 확인(수치형) 
 
@@ -182,7 +214,7 @@ warnings.filterwarnings(action='ignore')
     target_feature = 'lowest_monthly_earnings' # 변수 선택
 
     data[f'log_{target_feature}'] = scale(np.log(df[target_feature]+1))   # log에 0값이 들어가는 것을 피하기 위해+1
-
+    df[log col] = np.log1p(df["col"])  :  log1p: 0 및 음수 값에 대한 대응을 위해
     data[f'log_{target_feature}'].describe() # 로그변환한 변수의 요약통계량 보기
 
 - 변환 전후 요약통계량 비교
@@ -202,6 +234,13 @@ warnings.filterwarnings(action='ignore')
     ax[1].set_title('After log transformation')​
 
     plt.show()
+
+  - 제곱근 변환 : df['sqrt col'] = np.sqrt(df['col'])
+  - Box-Cox 변환 :
+    ```shell
+    lambdas = [[-3.0, -2.0, -1.0], [1.0, 2.0, 3.0]]
+    df['boxcox col'] = boxcox1p(df[col], lambdas[i][j])
+    ```
 
 
 ### 6-2. 표준화 : 평균 0, 분산 1
