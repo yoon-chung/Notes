@@ -1,11 +1,37 @@
 # EDA baseline
+## 1. 환경설정
+```shell
+# 계산, 데이터셋 로드, 정제
+import numpy as np
+import pandas as pd
+import os
 
-## 1. DF 만들기
+# 전처리
+from scipy.special import boxcox1p
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from category_encoders import CountEncoder
+
+# 출력 및 시각화
+import pprint
+import matplotlib.pyplot as plt
+import matplotlib.dates as mpdates
+import seaborn as sns
+
+from IPython.display import display
+from mplfinance.original_flavor import candlestick_ohlc
+
+# 셀 실행 후 경고 무시
+import warnings
+warnings.filterwarnings(action='ignore')
+```
+
+## 2. DF 만들기
 
 - df = pd.read_csv('{PATH / FILE NAME}', encoding='{utf-8, cp949}')
 
 
-## 2. DF 확인
+## 3. DF 확인
 
 - df.columns : 컬럼 전체를 리스트로 반환
 
@@ -30,9 +56,9 @@
 - df.columns[:] : 슬라이싱 한 구간만큼의 컬럼명들을 리스트로 반환
 
 
-## 3. 전처리 
+## 4. 전처리 
 
-### 3-1. 결측치 확인
+### 4-1. 결측치 확인
 
 - df.isnull(), df.isna()
 
@@ -40,7 +66,7 @@
 - df.isna().sum(axis=1) > 0 # axis = 1(행) 
 
 
-### 3-2. 결측치 제거
+### 4-2. 결측치 제거
 
 - df_copy = df : 원본 데이터 보관 후 작업
 
@@ -62,7 +88,7 @@
 - (df['col name'] < 0).any() # 음수값이 있는지 확인 후 전처리 (예: 변수 '가격'인데 음수는 있을 수 없음)​
 
 
-### 3-3. 이상치 확인 (Boxplot)
+### 4-3. 이상치 확인 (Boxplot)
 
 - import matplotlib.pyplot as plt
 
@@ -83,9 +109,9 @@
     print(Q1, Q3, IQR)
 ​
 
-## 4. 시각화
+## 5. 시각화
 
-### 4-1. 변수 분포 확인(히스토그램) 
+### 5-1. 변수 분포 확인(히스토그램) 
 
 - 히스토그램
 
@@ -102,7 +128,7 @@
     plt.show()  
 ​
 
-### 4-2. 범주형 변수별 수치 데이터 확인(막대그래프) 
+### 5-2. 범주형 변수별 수치 데이터 확인(막대그래프) 
 
 - Barplot 
 
@@ -122,7 +148,7 @@
     plt.show()
 
 ​
-### 4-3 데이터의 상관관계 확인(수치형) 
+### 5-3. 데이터의 상관관계 확인(수치형) 
 
 - Correlation
 
@@ -143,9 +169,9 @@
     plt.show()
 
 ​
-## 5. 데이터 변환
+## 6. 데이터 변환
 
-### 5-1. log 변환
+### 6-1. log 변환
 
 - 분포의 꼬리가 길어 한쪽으로 치우칠 때, 정규분포에 가깝게 하기 위해 log scale로 변환
   
@@ -178,7 +204,7 @@
     plt.show()
 
 
-### 5-2. 표준화 : 평균 0, 분산 1
+### 6-2. 표준화 : 평균 0, 분산 1
 
 - from sklearn.preprocessing import StandardScaler
 
@@ -217,7 +243,7 @@
     plt.show()
 
 ​
-### 5-3. 정규화 : 0 ~ 1 사이의 값
+### 6-3. 정규화 : 0 ~ 1 사이의 값
 
 - from sklearn.preprocessing import MinMaxScaler
 
