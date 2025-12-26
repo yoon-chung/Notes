@@ -40,6 +40,9 @@ df.columns
 df.index 
 df1 = df[df['col'] == 'NIKE'].copy() # col내용이 'NIKE'인 컬럼정보만 선택, 복사
 df['new col name'] = df.index # 설정된 인덱스를 하나의 컬럼으로 추가
+# 행 인덱스 날짜로 되어있다면, Date컬럼을 새로 만들고 인덱스 초기화
+df['Date'] = df.index
+df.reset_index(drop=True, inplace=True)
 
 # 행, 열의 크기
 df.shape
@@ -68,6 +71,10 @@ df = df.loc["2025-01-01":"2025-03-01"]
 
 # 슬라이싱 한 구간만큼의 컬럼명들을 리스트로 반환
 df.columns[:]
+
+# 불필요한 컬럼 제거
+df.drop([col1, col2,..,col3], axis=1, inplace=True)
+df.reset_index(drop=True, inplace=True)
 
 # 날짜-> 숫자
 df['Date'] = df['Date'].map(mpdates.date2num)
@@ -101,6 +108,7 @@ display(df[df['col'].isna() == True])
 - df['col name'].fillna(0, inplace=True) : na를 0으로 채워줌
 
 - df.dropna(axis=0, inplace=True) : axis=0일 경우 결측치가 있는 행을, axis=1이면 열을 전부 제거 #.sum()일때는 반대(axis=0: 열, axis=1: 행 합계)
+- df = df[(df[[col1, col2, col3,,,]] != 0).all(axis=1)] : 0이 되는 이상치, 결측치 모두 제거
 
 - df.isnull().sum() : 결측치 제거 확인
 
@@ -371,4 +379,30 @@ target = target_df.groupby(df['col'])['price'].mean()
 # map을 이용해 변환
 target_df['Target'] = target_df['col'].map(target)
 ```
+
+### 6-6. 파생변수
+```shell
+# 종목(code)로 집계 후 다음날 종가(Close)를 Target 변수에 삽입
+OHLCV_data["Target"] = OHLCV_data.groupby("code")["Close"].shift(-1)
+#.shift(-1): 한 칸 위로 이동. shuft(1): 한 칸 아래로
+
+# 통계기반
+# 일별 종가의 평균, 중앙값
+close_stats = df.groupby(["Date", "industry"])["Close"].agg(["mean", "median"])
+close_stats.columns = ["CloseMean", "CloseMedian"]
+df = pd.merge(df, close_stats, how="inner", on=["industry", "Date"])
+
+# 시간 관련
+# Date컬럼 나누기
+df["DateYear"] = df["Date"].dt.year
+df["DateMonth"] = df["Date"].dt.month
+df["DateDay"] = df["Date"].dt.day
+# "00월"형태를 "월"빼고 정수만 남기
+df["MonthInt"] = df["month"].str.replace('월', '').astype(int)
+```
+
+
+
+
+
 
