@@ -177,7 +177,9 @@ df.loc[df["col"] <= 0, "col"] = imputation   # 마이너스 값을 이전 기간
 
 ```shell
 # 선형 그래프
-sns.lineplot(data=df['col'], label='Price')  # 주식가격 흐름 확
+sns.lineplot(data=df['col'], label='Price')  # 주식가격 흐름 확인
+# 산점도
+sns.scatterplot(data=df['col'], x="xlabel", y="ylabel", color='indigo', marker='o', s=80)
 ```
 ​
 ### 5-3. 데이터의 상관관계 확인(수치형) 
@@ -200,6 +202,13 @@ sns.lineplot(data=df['col'], label='Price')  # 주식가격 흐름 확
 
     plt.show()
 
+### 5-4. 확률밀도추정 kde plot
+```shell
+# bar차트보다 직관적으로 두 데이터의 분포 비교
+# 스케일링 후 밀도 비교 (표준화 vs 로버스트)
+sns.kdeplot(data=df["Robust"], label="Robust", color="red", shade=True)
+sns.kdeplot(data=df["Stdzation"], label="Stdzation", color="indigo", shade=True)
+```
 ​
 ## 6. 데이터 변환
 
@@ -243,13 +252,13 @@ sns.lineplot(data=df['col'], label='Price')  # 주식가격 흐름 확
     ```
 
 
-### 6-2. 표준화 : 평균 0, 분산 1
+### 6-2. 표준화 : 평균 0, 표준편차 1
 
 - from sklearn.preprocessing import StandardScaler
 
 - scikit-learn패키지를 활용한 **standardization**
 
-    target_feature = 'lowest_monthly_earnings'# 스케일링을 진행할 변수를 선택
+    target_feature = 'lowest_monthly_earnings'  # 스케일링을 진행할 변수를 선택
 
     standard_scaler = StandardScaler()
 
@@ -280,6 +289,12 @@ sns.lineplot(data=df['col'], label='Price')  # 주식가격 흐름 확
     ax[1].set_title('After standardization')
 
     plt.show()
+
+   - 로버스트 스케일링 : 중앙값에 가까울수록 0, 멀어질수록 큰값으로 변환
+  ```shell
+  robust_scaler = RobustScaler()
+  df[["col1", "col2"]] = robust_scaler.fit_transform(df[["col1", "col2"]])
+  ```
 
 ​
 ### 6-3. 정규화 : 0 ~ 1 사이의 값
@@ -319,3 +334,5 @@ sns.lineplot(data=df['col'], label='Price')  # 주식가격 흐름 확
     ax[1].set_title('After normalization')
 
     plt.show()
+
+ 
