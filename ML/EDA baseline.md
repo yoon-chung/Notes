@@ -95,6 +95,17 @@ df.isna().sum(axis=1) > 0 # axis = 1(행)
 
 # 특정컬럼에서 몇개 열이 결측치 영향 받는
 display(df[df['col'].isna() == True])
+
+# 범주형 변수와 수치형 변수로 나눠서 결측치를 확인
+missing_cat_cols = df.loc[:, df.isna().sum() > 0].select_dtypes("object").columns
+missing_num_cols = df.loc[:, df.isna().sum() > 0].select_dtypes(np.number).columns
+display("범주형 변수 결측치 현황")
+display(df.loc[:, missing_cat_cols].isna().sum())
+display("수치형 변수 결측치 현황")
+display(df.loc[:, missing_num_cols].isna().sum())
+# 범주형 변수의 결측치 시각화
+missing_cat_df = pd.DataFrame(df.loc[:, missing_cat_cols].isna().sum())
+sns.barplot(data=missing_cat_df, x=missing_cat_df.index, y=missing_cat_df[0])
 ```
 
 ### 4-2. 결측치 제거
@@ -119,8 +130,28 @@ display(df[df['col'].isna() == True])
 
 - (df['col name'] < 0).any() # 음수값이 있는지 확인 후 전처리 (예: 변수 '가격'인데 음수는 있을 수 없음)​
 
+### 4-3. 결측치 대체 (Imputation)
+```shell
+# 최빈값 대체
+mode_cols = ['col1', 'col2', ..., 'col10']
+for col in mode_cols:
+    df[col] = df[col].fillna(df[col].mode()[0]) # .mean() : 평균값
 
-### 4-3. 이상치 확인 (Boxplot)
+# 회귀 대체
+knn_cols = ['col1', 'col2', ..., 'col10']
+for col in knn_cols:
+    knn = KNeighborsRegressor(n_neighbors=10)
+    numerical = df.select_dtypes(np.number)   # 수치형 변수 선택
+    non_na_num_cols = numerical.loc[:, numerical.isna().sum() == 0].columns
+    X = numerical.loc[numerical[col].isna() == False, non_na_num_cols] # 관측치 존재 컬럼
+    y = numerical.loc[numerical[col].isna() == False, col] # 결측치 발생 컬럼
+    X_test = numerical.loc[numerical[col].isna() == True, non_na_num_cols]
+    knn.fit(X, y) # knn학습
+    y_pred = knn.predict(X_test) # 결측치 예측
+    df.loc[numerical[col].isna() == True, col] = y_pred  # 예측값으로 채우기
+```
+
+### 4-4. 이상치 확인 (Boxplot)
 
 ```shell
 import matplotlib.pyplot as plt
@@ -139,10 +170,14 @@ Q1 = df['target_feature'].quantile(q=0.25)  # 25% 분위수
 IQR = Q3-Q1
 print(Q1, Q3, IQR)
 ```
-### 4-4. 이상치 대체
+### 4-5. 이상치 대체
 ```shell
+# 마이너스 값을 이전 기간 평균값으로 대체
 imputation = int(df.loc["2024-01-01":"2024-03-01"]["col"].mean())
-df.loc[df["col"] <= 0, "col"] = imputation   # 마이너스 값을 이전 기간 평균값으로 대체
+df.loc[df["col"] <= 0, "col"] = imputation  
+
+# 특정값으로 대체
+df.loc[df['year'] == 2526, 'year'] = 2026
 ```
 
 ## 5. 시각화
@@ -399,6 +434,26 @@ df["DateMonth"] = df["Date"].dt.month
 df["DateDay"] = df["Date"].dt.day
 # "00월"형태를 "월"빼고 정수만 남기
 df["MonthInt"] = df["month"].str.replace('월', '').astype(int)
+
+# 변수간 관계 활용
+# 부대시설 유무 
+df["has2ndFloor"] = df["2ndFlrSF"].apply(lambda x: 1 if x > 0 else 0)
+df["hasGarage"] = df["GarageArea"].apply(lambda x: 1 if x > 0 else 0)
+# 리모델링 연도 계
+df['RemodAfterBuilt'] = df['YearRemodAdd'] - df['YearBuilt']
+df['RemodAfterBuilt'] = df['RemodAfterBuilt'].clip(lower=0)  # 하향임계값 lower bound 설정
+# 연면적 계산
+df["TotalSF"] = df["TotalBsmtSF"] + df["1stFlrSF"] + df["2ndFlrSF"]
+
+# 변수 자체를 변환
+# log
+y_train = np.log1p(y_train)
+# min-max scaling
+for col in df.select_dtypes(np.number).columns:
+    df[col] = MinMaxScaler().fit_transform(df[[col]])
+# label encoding
+for col in df.select_dtypes("object").columns:
+    df[col] = LabelEncoder().fit_transform(df[col])
 ```
 
 
