@@ -335,4 +335,10 @@ sns.kdeplot(data=df["Stdzation"], label="Stdzation", color="indigo", shade=True)
 
     plt.show()
 
- 
+### 6-4. 구간화 : 수치형을 범주형 변수로 변환
+```shell
+bins = [0, 300000, 500000, 1000000]
+labels = ["Low", "Medium", "High"]
+df["Bin"] = pd.cut(df["price"], bins=bins, labels=labels)
+```
+
