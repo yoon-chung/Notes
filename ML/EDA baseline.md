@@ -219,13 +219,14 @@ sns.kdeplot(data=df["Stdzation"], label="Stdzation", color="indigo", shade=True)
 - from sklearn.preprocessing import scale
 
 - log 변환
+```shell
+# 변수 선택
+target_feature = 'lowest_monthly_earnings' 
+data[f'log_{target_feature}'] = scale(np.log(df[target_feature]+1))   # log에 0값이 들어가는 것을 피하기 위해+1
+df[log col] = np.log1p(df["col"]) # np.log1p=log(x+1) : 0 및 음수 값에 대한 대응을 위해
 
-    target_feature = 'lowest_monthly_earnings' # 변수 선택
-
-    data[f'log_{target_feature}'] = scale(np.log(df[target_feature]+1))   # log에 0값이 들어가는 것을 피하기 위해+1
-    df[log col] = np.log1p(df["col"])  :  log1p: 0 및 음수 값에 대한 대응을 위해
-    data[f'log_{target_feature}'].describe() # 로그변환한 변수의 요약통계량 보기
-
+data[f'log_{target_feature}'].describe() # 로그변환한 변수의 요약통계량 보기
+```
 - 변환 전후 요약통계량 비교
 
     df[[target_feature, f'log_{target_feature}']].describe()
