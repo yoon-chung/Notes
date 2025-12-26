@@ -97,6 +97,13 @@ encoder = ce.WOEEncoder(cols=[...])
 - 상호작용: 변수 결합. 예) 통신사 월 이용 금액을 활용해 멤버십 등급을 파생
 - 통계 기반: 평균, 중앙, 최소, 최대 등 활용. 예) 상품의 가격대(비싼정도) = 가격/카테고리별 평균값
 
+### 2.4. Feature Selection 변수선택
+1. Filter methods: 통계적 관계. 예) 상관관계 높은 변수들 제거, 분산 낮은 변수들 제거. 
+- 카이제곱 test기반: Y-X 카이제곱 통계량 구하고 p-value가 충분히 낮으면 Y와 해당 독립변수 X가 관계가 있다고 판단하여 변수로 선택한다. 반대라면, 변수 제거.
+2. Wrapper methods: ML모델 성능 기반. 예) Forward selection, Backward elimination
+3. Embedded methods: 훈련 과정에서 중요도 설정. 예) Feature importance, Regularizer 기반 선택
+
+
 
 
 
