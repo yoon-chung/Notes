@@ -342,3 +342,32 @@ labels = ["Low", "Medium", "High"]
 df["Bin"] = pd.cut(df["price"], bins=bins, labels=labels)
 ```
 
+### 6-5. 범주형 -> 수치형 변수 변환
+```shell
+# 원핫인코딩
+encoder = OneHotEncoder()
+# 2차원 형태의 배열로 입력해야 하기 때문에 대괄호([])가 2개
+onehot = encoder.fit_transform(onehot_data[["col"]])
+# 배열형태로 전환
+onehot_array = onehot.toarray()
+onehot_df_sample["Onehot"] = onehot_array[:5].tolist()
+
+# 레이블 인코딩
+encoder = LabelEncoder()
+label = encoder.fit_transform(label_df[["col"]])
+label_df["Label"] = label
+
+# 빈도 인코딩
+# scikit-learn에는 없음
+# 대신 category_encoders 패키지의 CountEncoder를 사용
+encoder = CountEncoder(cols=['col'])
+frequency = encoder.fit_transform(frequency_df['col'])
+frequency_df["Frequency"] = frequency
+
+# 타겟 인코딩
+# price 열의 평균 구하기
+target = target_df.groupby(df['col'])['price'].mean()
+# map을 이용해 변환
+target_df['Target'] = target_df['col'].map(target)
+```
+
