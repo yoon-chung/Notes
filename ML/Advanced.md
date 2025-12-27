@@ -112,7 +112,7 @@ encoder = ce.WOEEncoder(cols=[...])
 - 상관계수가 높은 하위 집합에서, 가장 원소의 개수가 많은 변수를 대표로 선택하고 나머지 삭제.
 - 학습된 트리모델의 중요도 낮은 변수들 제거: feature importance 낮으면 적은 기여할것이라는 가정
 - permutation importance: 검증 데이터셋의 특정 변수들을 무작위로 permutation 이후 성능산출. 원본 데이터셋보다 성능 떨어지면 그 변수는 중요한 변수. 검증 데이터셋의 Feature를 하나하나 shuffle하며 성능 변화를 관찰. 만약 해당 Feature가 중요한 역할을 하고있었다면, 모델 성능이 크게 하락할 것. 
-- target permutation : Shuffle된 Target 변수 모델을 학습시킨 후, Feature importance와 Actual feature importance를 비교해 변수를 선택.
+- target permutation : Shuffle된 Target 변수 모델을 학습시킨 후, Feature importance와 Actual feature importance를 비교해 변수를 선택. Shuffle의 의미- 해당 feature를 noise(의미없는 변수)로 만드는 과정
 - adversarial validation: train set과 valid set이 얼마나 유사한지 판단. 이 모델 분류에 도움이 되는 feature는 과적합 유발할 수 있으니 제거.
 
 
