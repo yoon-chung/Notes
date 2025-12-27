@@ -100,8 +100,21 @@ encoder = ce.WOEEncoder(cols=[...])
 ### 2.4. Feature Selection 변수선택
 1. Filter methods: 통계적 관계. 예) 상관관계 높은 변수들 제거, 분산 낮은 변수들 제거. 
 - 카이제곱 test기반: Y-X 카이제곱 통계량 구하고 p-value가 충분히 낮으면 Y와 해당 독립변수 X가 관계가 있다고 판단하여 변수로 선택한다. 반대라면, 변수 제거.
-2. Wrapper methods: ML모델 성능 기반. 예) Forward selection, Backward elimination
-3. Embedded methods: 훈련 과정에서 중요도 설정. 예) Feature importance, Regularizer 기반 선택
+2. Wrapper methods: 실제 ML모델 성능을 활용해 변수 선택. 예) Forward selection, Backward elimination
+- 장점: 모델 성능에 따른 최적의 변수 집합 도출
+- 단점: 반복 학습에 따른 시간, 비용
+3. Embedded methods: 모델 훈련 과정에서 중요도 설정, 변수 선택. 예) Feature importance, Regularizer 기반 선택
+- 장점: 변수 중요도 & 모델 복잡성 동시 고려
+- 단점: 훈련과정에서 선택된 변수 조합 해석의 어려움
+- Feature importance :트리node분할(Gini계수, Entropy활용). 특정 feature가 트리의 순수도가 높은 분할에 도움이 된다면 해당 feature는 중요도, 즉 모델 성능향상에 기여도가 높다고 이해. 
+- Regularization 기반: 특정 feature의 weight를 0 or 0에 가깝게 만들어 feature 제거 효과. L1: weight를 0으로 변환. L2 & ElasticNet: weight를 0에 가깝게 변환
+4. 실전 사례: 
+- 상관계수가 높은 하위 집합에서, 가장 원소의 개수가 많은 변수를 대표로 선택하고 나머지 삭제.
+- 학습된 트리모델의 중요도 낮은 변수들 제거: feature importance 낮으면 적은 기여할것이라는 가정
+- permutation importance: 검증 데이터셋의 특정 변수들을 무작위로 permutation 이후 성능산출. 원본 데이터셋보다 성능 떨어지면 그 변수는 중요한 변수. 검증 데이터셋의 Feature를 하나하나 shuffle하며 성능 변화를 관찰. 만약 해당 Feature가 중요한 역할을 하고있었다면, 모델 성능이 크게 하락할 것. 
+- target permutation : Shuffle된 Target 변수 모델을 학습시킨 후, Feature importance와 Actual feature importance를 비교해 변수를 선택.
+- adversarial validation: train set과 valid set이 얼마나 유사한지 판단. 이 모델 분류에 도움이 되는 feature는 과적합 유발할 수 있으니 제거.
+
 
 
 
