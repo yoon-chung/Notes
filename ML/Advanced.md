@@ -154,10 +154,14 @@ encoder = ce.WOEEncoder(cols=[...])
 5. Feature importance: 불순도를 많이 낮출 수 있는 feature = 중요 feature
 
 ### 3.4. 앙상블
+0. 앙상블 히스토리: Decision Trees - Bagging - Random Forest - Boosting - Gradient Boosting - XGBoost - Light GBM - CatBoost
 1. 여러개 서로 다른 예측 모형을 생성해 결과를 종합, voting(범주형), average(연속형)
 2. 트리앙상블: 배깅, 부스팅 
 3. 부트스트랩: 복원추출로 모집단의 통계량을 추론, 실제 모집단 통계량의 분포와 비슷
 4. 배깅: 부트스트랩의 복원추출 과정을 ML앙상블에 활용. 표본을 여러번 뽑아 모델 학습하고 결과를 집계. 장점: 오버피팅 가능성 감소, 일반화 성능 증가, 분산 감소
+5. 배깅 vs 부스팅:
+  - 배깅: 전체에서 학습 데이터를 무작위 추출. 각 모델이 독립적으로 구축
+  - 부스팅: 이전 모델에서 잘못 에측된 집합을 다음 모델 학습 데이터로 추출. 이전 모델 성능에 영향을 받아 편향을 감소하는데 집중
 
 #### 3.4.1. Random Forest
 1. 배깅의 일종. 독립변수 x도 무작위로 선택해 트리를 생성
@@ -166,7 +170,10 @@ encoder = ce.WOEEncoder(cols=[...])
 - 장점: 예측 성능 향상, 과적합 완화
 - 단점: 대용량 데이터 학습 오랜시간 소요, 단일 트리모델보다 해석력이 떨어짐.
 
-
+#### 3.4.2. GBM
+0. 참고 >> AdaBoost: 이전 모델이 틀리게 예측한 값에 가중치 부여, 다음 모델 조정에 활용.
+1. GBM : 정답과 이전 모델의 예측값으로 Gradient를 계산하여 다음 모델을 조정.
+2. Gradient Descent: 오차함수(Loss Function)의 Loss값이 최소가 되는 지점까지 반복. 
 
 
 
