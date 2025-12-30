@@ -456,6 +456,286 @@ for col in df.select_dtypes("object").columns:
     df[col] = LabelEncoder().fit_transform(df[col])
 ```
 
+## 7. Feature Selection
+### 7-1. Forward selection & Backward elimination
+```shell
+sfs = SFS(DecisionTreeRegressor(max_depth=10, random_state=1214, min_samples_split=100), 
+          forward=True, # =False : backward elimination
+          floating=False,
+          scoring="neg_root_mean_squared_error", # 성능 지표
+          cv=0,
+          n_jobs=-1)
+
+sfs.fit(X_train, Y_train)
+display(sfs.k_feature_names_) # 선택된 feature를 반환
+
+# 위에서 선택된 feature들로 모델 학습 후 결과를 관찰
+# 의사결정트리 분류기를  초기화하고 중요한 특성만 사용하여 훈련
+TP_X_train = X_train[['Close']]
+TP_X_test = X_valid[['Close']]
+
+start_time = time.time()
+dt2 = DecisionTreeRegressor(max_depth=10, random_state=1214,min_samples_split=100)
+dt2.fit(TP_X_train, Y_train)
+y_pred = dt2.predict(TP_X_test)
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f"변수 선택 후 코드 실행 시간: {elapsed_time} 초")
+y_true = Y_valid
+
+# 제곱근 평균 제곱 오차 (RMSE) 계산
+rmse = mean_squared_error(y_true, y_pred, squared=False)
+print("변수 선택 후 RMSE:", rmse)
+```
+### 7-2. Feature importance기반
+```shell
+# 먼저 LGBM 모델을 학습
+gbm = lgb.LGBMRegressor(n_estimators=100000,                # early stopping을 적용하기에 적당히 많은 반복 횟수를 지정
+                        metric="rmse",
+                        data_sample_strategy='goss',        # sampling 방법을 goss로 적용
+                        max_depth=12,                       # default값인 20에서 12로 변경
+                        num_leaves=62,                      # default값인 31에서 62으로 변경
+                        min_data_in_leaf=40                 # default값인 20에서 40으로 변경
+                        )
+
+start_time = time.time()
+gbm.fit(X_train, Y_train,
+        eval_set=[(X_train, Y_train), (X_valid, Y_valid)],
+        eval_metric ='rmse',
+        categorical_feature="auto",
+        callbacks=[lgb.early_stopping(stopping_rounds=50),         # 50번동안 metirc의 개선이 없다면 학습을 중단
+                   lgb.log_evaluation(period=10, show_stdv=True)]  # 10번의 반복마다 평가점수를 로그에 나타냄
+)
+y_pred = gbm.predict(X_valid)
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f"변수 선택 전 코드 실행 시간: {elapsed_time} 초")
+
+# 제곱근 평균 제곱 오차 (RMSE) 계산
+y_true = Y_valid
+rmse = mean_squared_error(y_true, y_pred, squared=False)
+print("변수 선택 전 RMSE:", rmse)
+```
+
+```shell
+# 학습된 LGBM의 feature importance 나타내기
+feat_imp = gbm.feature_importances_
+sorted_feat_imp = pd.Series(feat_imp, input_cols).sort_values(ascending=False)
+plt.figure(figsize=(10,3))
+sorted_feat_imp.plot(kind='bar', title='Feature Importances')
+plt.ylabel('Feature Importance Score')
+plt.show()
+```
+
+```shell
+# 위 importance를 이용해 importance가 100 이상인 변수들만 학습에 이용
+sfm = SelectFromModel(gbm, threshold=100, prefit = True)     # importance를 선정할 threshold를 설정
+sfm.fit(X_train, Y_train) # 훈련 데이터를 사용하여 중요한 특성을 선택
+X_important_train = sfm.transform(X_train)
+X_important_valid = sfm.transform(X_valid)
+
+start_time = time.time()
+gbm = lgb.LGBMRegressor(n_estimators=100000,                # early stopping을 적용하기에 적당히 많은 반복 횟수를 지정
+                        metric="rmse",
+                        data_sample_strategy='goss',        # sampling 방법을 goss로 적용
+                        max_depth=12,                       # default값인 20에서 12로 변경
+                        num_leaves=62,                      # default값인 31에서 62으로 변경
+                        min_data_in_leaf=40                 # default값인 20에서 40으로 변경
+                        )
+
+# 선택된 feature들로 재학습
+gbm.fit(X_important_train, Y_train,
+        eval_set=[(X_important_train, Y_train), (X_important_valid, Y_valid)],
+        eval_metric ='rmse',
+        categorical_feature="auto",
+        callbacks=[lgb.early_stopping(stopping_rounds=50),         # 50번동안 metirc의 개선이 없다면 학습을 중단
+                   lgb.log_evaluation(period=10, show_stdv=True)]  # 10번의 반복마다 평가점수를 로그에 나타냄
+)
+
+y_pred = gbm.predict(X_important_valid)
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f"변수 선택 후 코드 실행 시간: {elapsed_time} 초")
+
+y_true = Y_valid
+
+# 제곱근 평균 제곱 오차 (RMSE) 계산
+rmse = mean_squared_error(y_true, y_pred, squared=False)
+print("변수 선택 후 RMSE:", rmse)
+
+X_important_train.shape      # 11개의 변수만 선택됨
+```
+```shell
+# 의사결정트리 분류기를 새로 초기화하고 위에서 선택된 중요한 특성만 사용하여 훈련합니다.
+FI_X_train = X_train[['Close', 'Change', 'MACD', 'DateMonth', 'High', 'VolumeMean', 'Low', 'DateDay', 'Volume', 'PriceRange', 'AveragePrice']]
+FI_X_test = X_valid[['Close', 'Change', 'MACD', 'DateMonth', 'High', 'VolumeMean', 'Low', 'DateDay', 'Volume', 'PriceRange', 'AveragePrice']]
+
+start_time = time.time()
+dt = DecisionTreeRegressor(max_depth=10, random_state=1214,min_samples_split=100)
+dt.fit(FI_X_train, Y_train)
+y_pred = dt.predict(FI_X_test)
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f"변수 선택 후 코드 실행 시간: {elapsed_time} 초")
+y_true = Y_valid
+
+# 제곱근 평균 제곱 오차 (RMSE) 계산
+rmse = mean_squared_error(y_true, y_pred, squared=False)
+print("변수 선택 후 RMSE:", rmse)
+```
+
+### 7-3. Permutation importance 기반
+```shell
+# 의사결정나무 모델을 이용
+dt = DecisionTreeRegressor(max_depth=10,       # 트리의 깊이를 규제
+                            random_state=1214,  # 트리의 랜덤시드를 설정
+                            min_samples_split=100) # 해당하는 샘플이 100개 이상이면 split하도록
+dt.fit(X_train, Y_train)
+perm = PermutationImportance(dt,
+                             scoring = "neg_mean_squared_error",        # 평가 지표로는 회귀문제이기에 negative rmse를 사용합니다. (neg_mean_squared_error : 음의 평균 제곱 오차)
+                             random_state = 42,
+                             n_iter=5).fit(X_valid, Y_valid)
+
+eli5.show_weights(perm, feature_names = X_valid.columns.tolist())    # valid data에 대해
+```
+
+### 7-4. 대회/실전 사용
+#### 1. Target permutation (Null importance)
+```shell
+# Original model의 importance를 도출
+# Decision tree를 이용해 train/test data를 분류하도록 학습
+dt = DecisionTreeRegressor(max_depth=10,       # 트리의 깊이를 규제
+                                  random_state=1214,  # 트리의 랜덤시드를 설정
+                                  min_samples_split=100) # 해당하는 샘플이 100개 이상이면 split하도록
+dt.fit(X_train, Y_train)
+original_FI = dt.feature_importances_
+```
+
+```shell
+# original feature importance
+ser = pd.Series(original_FI, index=list(X_train.columns))
+```
+
+```shell
+# 이제 target 변수를 임의로 permutation 해서, feature importance의 분포를 도출
+ITER = 20 # 20번 반복
+new_FIs = []
+
+for _ in tqdm(range(ITER)) :
+    new_y_train = np.random.permutation(Y_train)
+
+    # 앞선 트리모델을 그대로 이용
+    dt = DecisionTreeRegressor(
+        max_depth=10, # 트리의 깊이를 규제
+        random_state=1214, # 트리의 랜덤시드를 설정
+        min_samples_split=100) # 해당하는 샘플이 100개 이상이면 split
+
+    # 셔플된 새로운 타겟 변수로 모델을 적합
+    dt.fit(X_train, new_y_train)
+    new_FIs.append(dt.feature_importances_)          # 새로운 feautre importance들을 수집
+```
+```shell
+np.array(new_FIs).shape       # 셔플된 피쳐별 모음
+```
+```shell
+# 변수별로 null importance plot을 그리기
+new_FIs = np.array(new_FIs)
+
+for i in range(len(list(X_train.columns))) :
+  ori = original_FI[i]
+  new = new_FIs[:, i]
+
+  cur_feat = list(X_train.columns)[i]
+
+  plt.figure(figsize=(6, 4))
+  plt.vlines(x=ori, color='hotpink', ymin=0, ymax=50, linewidth=10, label='Original importance', alpha=0.4)
+  plt.hist(new, color='lightgreen', label='Importances from Null distribution')
+  plt.title('Importance of ' + cur_feat + ' variable')
+  plt.legend()
+  plt.show()
+```
+
+```shell
+# 의사결정트리 분류기를 초기화하고 중요한 특성만 사용하여 훈련
+TP_X_train = X_train[['Close', 'MACD', 'PriceRange', 'Volume', 'VolumeMean']]
+TP_X_test = X_valid[['Close', 'MACD', 'PriceRange', 'Volume', 'VolumeMean']]
+
+start_time = time.time()
+dt2 = DecisionTreeRegressor(max_depth=10, random_state=1214,min_samples_split=100)
+dt2.fit(TP_X_train, Y_train)
+y_pred = dt2.predict(TP_X_test)
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f"변수 선택 후 코드 실행 시간: {elapsed_time} 초")
+y_true = Y_valid
+
+# 제곱근 평균 제곱 오차 (RMSE) 계산
+rmse = mean_squared_error(y_true, y_pred, squared=False)
+print("변수 선택 후 RMSE:", rmse)
+```
+
+#### 2. Adversarial validation
+```shell
+# Train은 0, Test는 1로 라벨 변수를 설정
+X_train['AV_label'] = 0
+X_valid['AV_label'] = 1
+
+# 위 두 데이터를 합치고, 셔플
+all_data = pd.concat([X_train, X_valid], axis=0, ignore_index=True)
+all_data_shuffled = all_data.sample(frac=1)
+X = all_data_shuffled.drop(['AV_label', 'DateYear', 'DateMonth'], axis=1)      # Date 관련 변수도 제외해 주는 것을 기억하세요!
+y = all_data_shuffled['AV_label']
+X.columns # 아래 컬럼들을 이용
+```
+```shell
+# Decision tree를 이용해 Train/Test data를 분류하도록 학습
+from sklearn.tree import DecisionTreeClassifier
+dt_adv = DecisionTreeClassifier(random_state=0)
+dt_adv.fit(X, y)
+ytrainpredict_rf = dt_adv.predict(X)
+```
+```shell
+# 위 feature importance를 시각화
+ser = pd.Series(dt_adv.feature_importances_, index=list(X.columns))
+top15 = ser.sort_values(ascending=False)
+
+plt.figure(figsize=(8,6))
+plt.title("Feature Importances in Adversarial Validation process")
+sns.barplot(x=top15, y=top15.index)
+plt.show()
+```
+```shell
+# 위 train/test 분류의 importance가 0.003 이하인 변수들만 가지고 학습
+# 이 변수들은 그나마 train과 test 분류에 기여하지 못하는(=train, test 분포가 비슷한) 변수들이라고 해석
+
+av_choosed = pd.DataFrame(ser, columns=['imp']).query('imp<0.003').reset_index()
+av_choosed
+```
+```shell
+# 의사결정트리 분류기를 새로 초기화하고 중요한 특성만 사용하여 훈련
+TP_X_train = X_train[list(av_choosed['index'])]
+TP_X_test = X_valid[list(av_choosed['index'])]
+
+start_time = time.time()
+dt2 = DecisionTreeRegressor(max_depth=10, random_state=1214,min_samples_split=100)
+dt2.fit(TP_X_train, Y_train)
+y_pred = dt2.predict(TP_X_test)
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f"변수 선택 후 코드 실행 시간: {elapsed_time} 초")
+y_true = Y_valid
+
+# 제곱근 평균 제곱 오차 (RMSE) 계산
+rmse = mean_squared_error(y_true, y_pred, squared=False)
+print("변수 선택 후 RMSE:", rmse)
+```
+
+
 
 
 
