@@ -182,11 +182,15 @@ encoder = ce.WOEEncoder(cols=[...])
 
 3. Step of GBM
 
-3.1. 초기 예측 = Y의 평균값 
-3.2. Y와 예측값 차이 = 잔차 계산
-3.3. 주어진 x1, x2, x3 바탕으로 Residual 예측하는 Decision tree생성 
-3.4. Tree 결과를 이용해 예측값 구함: Predict = AvgPred1 + Leaf node value 
-3.5. 현재예측값과 Y차이로 다음 트리 구성을 위한 Residual 계산과정 반복
+  3.1. 초기 예측 = Y의 평균값 
+  
+  3.2. Y와 예측값 차이 = 잔차 계산
+  
+  3.3. 주어진 x1, x2, x3 바탕으로 Residual 예측하는 Decision tree생성 
+  
+  3.4. Tree 결과를 이용해 예측값 구함: Predict = AvgPred1 + Leaf node value 
+  
+  3.5. 현재예측값과 Y차이로 다음 트리 구성을 위한 Residual 계산과정 반복
 
 4. Overfitting 문제: 잔차가 0이 되어 과적합 문제 발생 -> Regularization방법으로 완화: Subsampling, Shrinkage, Early Stopping
 - Subsampling: 원본의 일부만 추출해서 다음 학습에 사용. 조금씩 다른 분포의 데이터에 대해 학습 이루어지도록.
@@ -206,38 +210,24 @@ encoder = ce.WOEEncoder(cols=[...])
   - gradient기준 instance 정렬 후 down sampling. (gradient크면 덜 훈련된것, 작으면 잘 훈련된것이므로). 
   - n개를 sorted 정렬 -> 상위 k개 = TopSet, (n-k)개에서 무작위 샘플링 = randSet -> TopSet + randSet 합쳐서 다음 학습에 이용
     
-  2.2. EFB(Exclusive Feature Bundling) - 입력 feature 수 줄이는 방법 => 시간/연산적 비용 개선
+  2.2. EFB(Exclusive Feature Bundling) - 입력 feature 수 줄이는 방법 => 시간/연산적 비용 개선    
+  2.2.1. 번들로 묶을 수 있는 feature 식별: 각 feature간 0이 아닌값을 함께 가지는 경우에 집중
+  - conflict, degree 기반
   
-    2.2.1. 번들로 묶을 수 있는 feature 식별: 각 feature간 0이 아닌값을 함께 가지는 경우에 집중
-    - conflict, degree 기반
-    
-    2.2.2. feature 병합: bundle내에서 큰 degree가진 feature가 기준 feature로 선정
-    - 기준feature를 최소한의 손실로 값을 변환할 수 있는 방법 사용
-    - 기준feature의 가장 많은 conflict가 발생한 경우를 찾고, bundle내 값의 변환에 사용할 offset지정
-    
-    2.2.3. 파라미터
-    - 라이브러리: https://lightgbm.readthedocs.io/en/stable/index.html
-    - 파라미터: https://github.com/microsoft/LightGBM/blob/master/docs/Parameters.rst
-    - boosting: Tree 구축방식. default = gbdt. (그외 rf, dart)
-    - data_sample_strategy: default = bagging (그외 goss)
-    - objective: default = regression (그외 lambdarank, regression_l1, cross_entropy)
-    - max_depth: 트리 최대깊이 제어. default = 20
-    - num_leaves: 트리 leaf수 조절. default = 31 (2^(max_depth)보다 낮은 수 사용가능. 복잡성 제어하여 과적합 줄임)
-    - min_data_in_leaf: 트리의 leaf가 가질 수 있는 최소 인스턴스 수 조절. default = 20. 큰값 주면 너무 깊은 tree가 구성되는 것을 피하며 과적합 방지 가능하지만 과소적합 발생 
-    - feature_fraction: default = 1.0, 1보다 작은 경우, 매 iteration에서 feature들에 대한 하위집합을 파라미터의 비율로 무작위 선택 
-    - bagging_fraction: default = 1.0, feature가 아닌 data(row)에 대한 하위집합을 무작위 선택
-
-
-
-
-
-
-
-
-
-
-
-
-
+  2.2.2. feature 병합: bundle내에서 큰 degree가진 feature가 기준 feature로 선정
+  - 기준feature를 최소한의 손실로 값을 변환할 수 있는 방법 사용
+  - 기준feature의 가장 많은 conflict가 발생한 경우를 찾고, bundle내 값의 변환에 사용할 offset지정    
+  
+  2.2.3. 파라미터
+  - 라이브러리: https://lightgbm.readthedocs.io/en/stable/index.html
+  - 파라미터: https://github.com/microsoft/LightGBM/blob/master/docs/Parameters.rst
+  - boosting: Tree 구축방식. default = gbdt. (그외 rf, dart)
+  - data_sample_strategy: default = bagging (그외 goss)
+  - objective: default = regression (그외 lambdarank, regression_l1, cross_entropy)
+  - max_depth: 트리 최대깊이 제어. default = 20
+  - num_leaves: 트리 leaf수 조절. default = 31 (2^(max_depth)보다 낮은 수 사용가능. 복잡성 제어하여 과적합 줄임)
+  - min_data_in_leaf: 트리의 leaf가 가질 수 있는 최소 인스턴스 수 조절. default = 20. 큰값 주면 너무 깊은 tree가 구성되는 것을 피하며 과적합 방지 가능하지만 과소적합 발생 
+  - feature_fraction: default = 1.0, 1보다 작은 경우, 매 iteration에서 feature들에 대한 하위집합을 파라미터의 비율로 무작위 선택 
+  - bagging_fraction: default = 1.0, feature가 아닌 data(row)에 대한 하위집합을 무작위 선택
 
 
