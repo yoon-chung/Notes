@@ -171,12 +171,17 @@ encoder = ce.WOEEncoder(cols=[...])
 - 단점: 대용량 데이터 학습 오랜시간 소요, 단일 트리모델보다 해석력이 떨어짐.
 
 #### 3.4.2. GBM
+
 0. 참고 >> AdaBoost: 이전 모델이 틀리게 예측한 값에 가중치 부여, 다음 모델 조정에 활용.
+
 1. GBM : 정답과 이전 모델의 예측값으로 Gradient를 계산하여 다음 모델을 조정.
+
 2. Gradient Descent (경사하강법): 오차함수(Loss Function)의 Loss값이 최소가 되는 지점까지 반복. 
 잔차 Residual의 합 Loss값이 최소가 되는 지점을 찾아냄 -> 비효율 ->
-오차함수에서 접선의 기울기(Gradient)를 이용한 경사하강법으로 해결. 접선의 기울기 = Y값 변화량 / X값 변화량 (미분). 현재 모델의 negative gradient를 통해 다음 모델을 추론하는 과정을 Loss가 최소가 되는 지점까지 반복. 
-3. Step of GBM: 
+오차함수에서 접선의 기울기(Gradient)를 이용한 경사하강법으로 해결. 접선의 기울기 = Y값 변화량 / X값 변화량 (미분). 현재 모델의 negative gradient를 통해 다음 모델을 추론하는 과정을 Loss가 최소가 되는 지점까지 반복.
+
+3. Step of GBM
+
 3.1. 초기 예측 = Y의 평균값 
 3.2. Y와 예측값 차이 = 잔차 계산
 3.3. 주어진 x1, x2, x3 바탕으로 Residual 예측하는 Decision tree생성 
@@ -189,30 +194,38 @@ encoder = ce.WOEEncoder(cols=[...])
 - Early stopping: 더이상 검증셋에 대해 개선되지 않을때 훈련 중지하는 정규화 기술. 학습을 진행하며 검증셋에 대해 최고성능을 가지는 때의 모델상태를 저장해두고, 일정 기준 이상 성능 개선이 안될때 저장해둔 모델을 마지막 최상의 모델로 사용.
 
 #### 3.4.3. LightGBM
+
 0. A Highly Efficient Gradient Boosting Decision Tree (2017)
 - 훈련숙도, 효율성, 메모리 사용량 줄이며 성능 높인 Gradient Boosting Machine. GBM보다 대규모 데이터 처리에 적합.
+
 1. GBM의 문제점: 모든 feature, data instance로 gradient측정, 데이터크기가 커질수록 시간 소요
+
 2. GBM 문제개선
-2.1. GOSS(Gradient-based One-Side Sampling) - 학습데이터 down 샘플링, 데이터instance 줄임
-- gradient기준 instance 정렬 후 down sampling. (gradient크면 덜 훈련된것, 작으면 잘 훈련된것이므로). 
-- n개를 sorted 정렬 -> 상위 k개 = TopSet, (n-k)개에서 무작위 샘플링 = randSet -> TopSet + randSet 합쳐서 다음 학습에 이용
-2.2. EFB(Exclusive Feature Bundling) - 입력 feature 수 줄이는 방법 => 시간/연산적 비용 개선
-2.2.1. 번들로 묶을 수 있는 feature 식별: 각 feature간 0이 아닌값을 함께 가지는 경우에 집중
-- conflict, degree 기반
-2.2.2. feature 병합: bundle내에서 큰 degree가진 feature가 기준 feature로 선정
-- 기준feature를 최소한의 손실로 값을 변환할 수 있는 방법 사용
-- 기준feature의 가장 많은 conflict가 발생한 경우를 찾고, bundle내 값의 변환에 사용할 offset지정
-2.2.3. 파라미터
-- 라이브러리: https://lightgbm.readthedocs.io/en/stable/index.html
-- 파라미터: https://github.com/microsoft/LightGBM/blob/master/docs/Parameters.rst
-- boosting: Tree 구축방식. default = gbdt. (그외 rf, dart)
-- data_sample_strategy: default = bagging (그외 goss)
-- objective: default = regression (그외 lambdarank, regression_l1, cross_entropy)
-- max_depth: 트리 최대깊이 제어. default = 20
-- num_leaves: 트리 leaf수 조절. default = 31 (2^(max_depth)보다 낮은 수 사용가능. 복잡성 제어하여 과적합 줄임)
-- min_data_in_leaf: 트리의 leaf가 가질 수 있는 최소 인스턴스 수 조절. default = 20. 큰값 주면 너무 깊은 tree가 구성되는 것을 피하며 과적합 방지 가능하지만 과소적합 발생 
-- feature_fraction: default = 1.0, 1보다 작은 경우, 매 iteration에서 feature들에 대한 하위집합을 파라미터의 비율로 무작위 선택 
-- bagging_fraction: default = 1.0, feature가 아닌 data(row)에 대한 하위집합을 무작위 선택
+
+  2.1. GOSS(Gradient-based One-Side Sampling) - 학습데이터 down 샘플링, 데이터instance 줄임
+  - gradient기준 instance 정렬 후 down sampling. (gradient크면 덜 훈련된것, 작으면 잘 훈련된것이므로). 
+  - n개를 sorted 정렬 -> 상위 k개 = TopSet, (n-k)개에서 무작위 샘플링 = randSet -> TopSet + randSet 합쳐서 다음 학습에 이용
+    
+  2.2. EFB(Exclusive Feature Bundling) - 입력 feature 수 줄이는 방법 => 시간/연산적 비용 개선
+  
+    2.2.1. 번들로 묶을 수 있는 feature 식별: 각 feature간 0이 아닌값을 함께 가지는 경우에 집중
+    - conflict, degree 기반
+    
+    2.2.2. feature 병합: bundle내에서 큰 degree가진 feature가 기준 feature로 선정
+    - 기준feature를 최소한의 손실로 값을 변환할 수 있는 방법 사용
+    - 기준feature의 가장 많은 conflict가 발생한 경우를 찾고, bundle내 값의 변환에 사용할 offset지정
+    
+    2.2.3. 파라미터
+    - 라이브러리: https://lightgbm.readthedocs.io/en/stable/index.html
+    - 파라미터: https://github.com/microsoft/LightGBM/blob/master/docs/Parameters.rst
+    - boosting: Tree 구축방식. default = gbdt. (그외 rf, dart)
+    - data_sample_strategy: default = bagging (그외 goss)
+    - objective: default = regression (그외 lambdarank, regression_l1, cross_entropy)
+    - max_depth: 트리 최대깊이 제어. default = 20
+    - num_leaves: 트리 leaf수 조절. default = 31 (2^(max_depth)보다 낮은 수 사용가능. 복잡성 제어하여 과적합 줄임)
+    - min_data_in_leaf: 트리의 leaf가 가질 수 있는 최소 인스턴스 수 조절. default = 20. 큰값 주면 너무 깊은 tree가 구성되는 것을 피하며 과적합 방지 가능하지만 과소적합 발생 
+    - feature_fraction: default = 1.0, 1보다 작은 경우, 매 iteration에서 feature들에 대한 하위집합을 파라미터의 비율로 무작위 선택 
+    - bagging_fraction: default = 1.0, feature가 아닌 data(row)에 대한 하위집합을 무작위 선택
 
 
 
