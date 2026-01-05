@@ -245,7 +245,31 @@ docker run --name test [해당이미지 이름/태그]
 - 데이터 직렬화 언어. 구성파일, 데이터교환, 설정파일 등에 널리 사용됨. 프로그래밍 언어간 데이터교환에 적합. 
 - 들여쓰기로 계층 구조 표현. 탭 사용 피해야함. 하나의 파일 내에서 여러 문서를 ‘---’로 구분하여 표현.
 
+## 5-2. 쿠버네티스 실습
+- https://labs.play-with-k8s.com -> add new instance 클릭
+- pod: 가장 작은 작업 단위, 하나 이상 컨테이너를 포함하며 스토리지와 네트워크 공유
+- deployment: 배포,업뎃,스케일링 등을 자동화하고 관리
+- ReplicaSet: 레플리카셋은 파드의 복제본을 유지 관리 (실패 파드를 자동으로 대체..)
 
+```shell
+#환경구축
+kubeadm init --apiserver-advertise-address $(hostname -i) --pod-network-cidr 10.5.0.0/16
+kubectl apply -f https://raw.githubusercontent.com/cloudnativelabls/kube-router/master/daemonset/kubeadm-kuberouter.yaml
+
+# pod 실습
+kubectl run fastcampusserver image= nginx:latest port 80  # 런
+kubectl get pods  # pod 상태
+kubectl describe pod 
+curl [IP Address]:80    
+
+# deployment 실습
+kubectl create deployment fastcampusdeployment image=nginx replicas=2
+kubectl get deployments.apps
+kubectl get pods  # pod 확인
+kubectl describe pod [pod name]  # pod name에 따른 확인
+kubectl edit deployments.apps fastcampusdeployment   # 편집
+kubectl get pods
+```
 
 
 
