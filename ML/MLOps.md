@@ -94,6 +94,16 @@ source myenv/bin/activate
 ls # 확인
 clear
 ```
+## 4. Container
+1. 운영체제를 가상화한 형식으로, 각 컨테이너는 서로 격리된 공간에서 실행.
+2. Virtual Machine과의 차이점: VM은 하드웨어까지 가상화. Container는 운영체제를 가상화하므로 휴대가 쉽고 가벼우며 효율적. 
+3. 구성: Image(애플리케이션과 그 실행에 필요한 모든 파일을 포함한 불변의 템플릿), Registry(이미지가 저장되고 공유되는 곳), Container Runtime(컨테이너가 실행되기 위한 환경제공)
+4. Docker: 컨테이너화 기술 사용하여 애플리케이션을 패키징하고 배포하는데 사용되는 오픈소스플랫폼
+- Docker Image: 애플리케이션 실행하는데 필요한 모든 파일, 설정 포함하는 템플릿
+- Docker Container: 이미지를 실행했을 때의 실행 Instance
+- Docker Daemon: 이미지, 컨테이너 관리하는 백그라운드 서비스
+- Docker Registry: 외부 이미지 저장소. 다른 사람들의 공유한 이미지 사용가능, private하게도 가능
+- Docker Client: daemon과 상호작용하는 인터페이스
 
 
 
