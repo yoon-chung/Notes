@@ -24,6 +24,20 @@ ML Life cycle을 체계적으로 관리, 적절한 인프라에 의존(데이터
 - 다른 시스템과의 통신을 위한 표준 프로토콜 및 인터페이스
 - 예: REST API call 요청을 해서 해당 모델 트레이닝 컨테이너를 실행
 
+## 2. Storage & Computing Resources
+1. Storage 
+- Amazon S3, Cloud Storage, Azure Blob Storage
+- 대규모 이미지/비디오 데이터셋의 저장, 분석, 글로벌 ML 파이프라인에서의 데이터 공유
+- 분산파일시스템: Hadoop Distributed File System, GlusterFS
+- 데이터 웨어하우스: Snowflake, Amazon Redshift, Google BigQuery
+- 데이터 레이크: AWS Lake Formation, Azure Data Lake
+2. Computing
+- 클라우드 기반: AWS EC2, Google Compute Engine
+- GPU/TPU: NVIDIA의 Tesla 시리즈 GPU, Google Cloud TPU
+- 서버리스 컴퓨팅: AWS Lambda, Google Cloud Functions, Azure Functions
+- 컨테이너화된 컴퓨팅: Docker 컨테이너, Kubernetes 클러스터
+
+
 
 
 
