@@ -105,6 +105,137 @@ clear
 - Docker Registry: 외부 이미지 저장소. 다른 사람들의 공유한 이미지 사용가능, private하게도 가능
 - Docker Client: daemon과 상호작용하는 인터페이스
 
+## 4-1. Container 실습
+- labs.play-with-docker.com (설치없이 온라인 실습가능)
+- https://hub.docker.com (docker hub account 생성)
+
+1. 생성단계
+- dockerfile 작성
+- 파일 내 스크립트를 실행한다면 스크립트 작성
+- docker 이미지 빌드
+- docker 컨테이너 실행
+
+```shell
+FROM python:3.8-slim    # 기본 이미지로 파이썬3.8 사용
+WORKDIR /app   # 작업 디렉토리 설정
+COPY hello.py / app   # 파이썬 스크립트 복사
+CMD [“python”, “./hello.py”]   # 스크립트 실행
+
+docker build -t hello-world-python .   # 이미지 빌드
+docker run hello-world-python   # 컨테이너 실행
+```
+
+2. 기본
+```shell
+cd ..
+docker  # 도커 확인
+clear 
+mkdir practice_hellodockerworld  # 디렉토리 생성 
+cd practice_hellodockerworld
+ls
+vim Dockerfile
+FROM python:3.8-slim    # 기본 이미지로 파이썬3.8 사용
+WORKDIR /app   # 작업 디렉토리 설정
+COPY main.py / app   # 파이썬 스크립트 복사
+CMD [“python”, “./main.py”]   # 스크립트 실행
+ls
+vim main.py
+print(“Hello, Docker World!!!”)
+print(sys.version_info)
+cat main.py # 확인
+ls
+
+docker build -t hello-docker-world .   # 이미지 빌드 (.은 경로)
+docker run hello-docker-world   # 컨테이너 실행
+
+# 만약 여기서 파일 변경됐다면, 다시 빌드
+docker build -t hello-docker-world .   # 이미지 빌드 (.은 경로)
+docker run hello-docker-world   # 컨테이너 실행
+
+docker ps # 실행중인 도커 리스트
+docker stop [컨테이너 아이디]  # 실행중인 도커 중단
+docker ps
+
+docker rmi hello-docker-world -f  # 이미지 삭제
+docker images  # 이미지 확인
+```
+
+3. Nginx기반
+```shell
+mkdir server_docker_images
+docker search nginx  # 도커허브 웹사이트에서도 public images검색가능
+docker pull nginx # 다운로드
+docker images # 다운받은 이미지 확인
+docker run -it -d -p 8001:80 --name nginxserver nginx:latest &
+docker ps  # 실행 확인
+docker stop [컨테이너아이디]
+docker start nginxserver # 이미 run한 이미지를 stop했다가 다시 실행할때
+
+# 1) docker내 파일을 직접 수정
+docker exec -it [컨테이너 아이디] bash
+ls
+cd /usr/share/nginx/html  # html 파일 수정하기
+ls
+cat index.html
+Echo “fastcampus’ nginx server” > index.html
+cat index.html
+exit
+
+# 2) 파일 생성 후 컨테이너로 옮기기
+ls
+cd server_docker_container
+ls
+vim index.html # 작성
+cat index.html 
+docker ps
+docker cp index.html nginxserver:/usr/share/nginx/html/index.html # 파일을 해당경로로 복사
+```
+
+4. Scikit-learn 기반
+```shell
+mkdir scikitlearndocker
+cd scikitlearndocker
+ls
+vim Dockerfile
+# 파일 작성
+FROM python:3.8-slim
+WORKDIR /app
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY model_learn.py /app/   # py파일을 app 디렉토리로 복사
+CMD [“python”, “./model_learn.py”]
+
+cat Dockerfile # 파일 저장 후 내용 확인
+
+vim requirements.txt
+scikit-learn
+cat requirements.txt
+vim model_learn.py
+# 필요 라이브러리, 모델링 코드 작성(전처리, 분할, 학습, 평가 등)
+cat model_learn.py
+
+docker build -t scikitlearn_modellearn .    # 빌드
+docker run --name mldevelopment scikitlearn_modellearn
+```
+```shell
+docker images
+# 로컬에서 만든 이미지를 도커허브 repository로 저장
+docker tag scikitlearn_modellearn:latest [나의 도커허브 아이디]/scikitlearn_modellearn:latest
+docker images
+docker push [나의 도커허브 아이디]/scikitlearn_modellearn:latest
+clear
+```
+```shell
+# 나의 repositoty에 있는 이미지 로컬로 다운받기
+docker pull [도커허브에서 복사한 해당이미지 이름/태그]
+docker images  # 다운받은 이미지 확인
+docker run --name test [해당이미지 이름/태그]
+```
+
+
+
+
 
 
 
