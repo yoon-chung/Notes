@@ -37,6 +37,66 @@ ML Life cycle을 체계적으로 관리, 적절한 인프라에 의존(데이터
 - 서버리스 컴퓨팅: AWS Lambda, Google Cloud Functions, Azure Functions
 - 컨테이너화된 컴퓨팅: Docker 컨테이너, Kubernetes 클러스터
 
+## 3. 환경관리툴
+프로젝트별로 격리된 개발환경 설정 유지
+1. Conda: 파이썬 등 프로그래밍 언어를 위한 환경 관리 시스템 (conda forge, Anaconda Repository 등 채널 통해 수천개 패키지 접근 가능)
+2. Virtualenv: 파이썬의 가상환경 생성도구 (pip사용)
+3. Pipenv: pip + virtualenv 기능 결합 (pipfile 사용)
+
+## 3-1. Conda 실습
+```shell
+conda
+conda --version
+clear
+```
+```shell
+conda create --name fastcampus_mlops_env
+y
+conda activate fastcampus_mlops_env
+conda deactivate
+```
+```shell
+conda create --name fastcampus_mlops_python_env python=3.8  # 선택환경에 특정버전 설치
+y
+python –version  # 버전 확인
+exit()
+```
+```shell
+conda env list # 동료의 env 환경이름 확인
+conda activate fastcampus_mlops_env # 해당 env 실행
+conda env export > environment_my.yml # env 환경내 설치내용 저장
+cat environment_my.yml # 설치내용 확인
+conda deactivate
+```
+```shell
+# 한번에 env 복사
+conda env create --name newone -f environment_my.yml  # newone이라는 env 만들기
+conda activate newone # newone env 실행
+conda env export > environment_test.yml # env 환경내 설치내용 저장 
+cat environment_test.yml # 설치내용 확인
+conda deactivate
+```
+
+## 3-2. Virtualenv 실습
+```shell
+pip install virtualenv # 설치
+virtualenv # 확인
+virtualenv myenv
+source myenv/bin/activate
+pip install numpy pandas
+python
+exit()
+```
+```shell
+virtualenv myenv2 -p /user/bin/python3.8 # 원하는 파이썬 버전으로
+pip install requests flask # 예시
+source myenv/bin/activate 
+ls # 확인
+clear
+```
+
+
+
 
 
 
