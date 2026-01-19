@@ -271,8 +271,44 @@ kubectl edit deployments.apps fastcampusdeployment   # 편집
 kubectl get pods
 ```
 
+## 6. Workflow Management
+1. 데이터 수집, 처리, 모델 트레이닝 및 배포에 이르는 전체 머신러닝 파이프라인을 체계적으로 계획, 실행
+2. 데이터준비(데이터 수집, 정제, 전처리, feature engineering) -> 모델개발(알고리즘 선택, 모델 트레이닝, 하이퍼 파라메터 튜닝) -> 평가/검증 -> 배포/모니터링
+3. Apache Airflow, Kuberflow
+4. DAG(Directed Acyclic Graph): Airflow에서 workflow를 정의하는 주요 구성요소 그래프
+## 6-1. Airflow 실습
 
+```shell
+docker build -t my_airflow_image .
+docker run --name my_airflow_image -d -p 8080:8080 my_airflow_image:latest
+# Dockerfile
+FROM python:3.8 -slim
+# 환경 변수 설정
+ENV AIRFLOW_HOME=/usr/local/airflow
+# 필요한 시스템 라이브러리 설치
+RUN apt -get update && \ apt get install y gcc libc dev vim && \ rm -rf /var/lib/apt/lists/*
+# Airflow 설치
+RUN pip install apache-airflow
+# Airflow 환경 설정
+RUN mkdir -p $AIRFLOW_HOME
+WORKDIR $AIRFLOW_HOME
+RUN airflow db init
+# Airflow DAGs폴더에 DAG 파일 복사
+COPY my_dag.py $AIRFLOW_HOME/dags/
+# Airflow 웹 서버 포트 노출
+EXPOSE 8080
+# Airflow 웹 서버 및 스케줄러 실행
+CMD airflow webserver -p 8080 & airflow scheduler
 
+Docker ps
+Docker exec -it [container id 또는 이름 bash
+Airflow users create --username [사용자명] --firstname [이름] --role Admin --email [이메일]
+#http://localhost:8080
+```
+```shell
+# DAG
+
+```
 
 
 
