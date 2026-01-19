@@ -307,10 +307,139 @@ Airflow users create --username [사용자명] --firstname [이름] --role Admin
 ```
 ```shell
 # DAG
+from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+from datetime import datetime, timedelta
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.metrics import accuracy_score
+from airflow.models import Variable
 
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'start_date': datetime(2023, 1, 1),
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
+}
+
+dag = DAG(
+    'model_training_selection',
+    default_args=default_args,
+    description='A simple DAG for model training and selection',
+    schedule_interval=timedelta(days=1),
+)
+
+def feature_engineering(**kwargs):
+    from sklearn.datasets import load_iris
+    import pandas as pd
+
+    iris = load_iris()
+    X = pd.DataFrame(iris.data, columns=iris.feature_names)
+    y = pd.Series(iris.target)
+
+    # 데이터 분할
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+
+    # XCom을 사용하여 데이터 저장
+    ti = kwargs['ti']
+    ti.xcom_push(key='X_train', value=X_train.to_json())
+    ti.xcom_push(key='X_test', value=X_test.to_json())
+    ti.xcom_push(key='y_train', value=y_train.to_json(orient='records'))
+    ti.xcom_push(key='y_test', value=y_test.to_json(orient='records'))
+
+def train_model(model_name, **kwargs):
+    ti = kwargs['ti']
+    X_train = pd.read_json(ti.xcom_pull(key='X_train', task_ids='feature_engineering'))
+    X_test = pd.read_json(ti.xcom_pull(key='X_test', task_ids='feature_engineering'))
+    y_train = pd.read_json(ti.xcom_pull(key='y_train', task_ids='feature_engineering'), typ='series')
+    y_test = pd.read_json(ti.xcom_pull(key='y_test', task_ids='feature_engineering'), typ='series')
+
+    if model_name == 'RandomForest':
+        model = RandomForestClassifier()
+    elif model_name == 'GradientBoosting':
+        model = GradientBoostingClassifier()
+    else:
+        raise ValueError("Unsupported model: " + model_name)
+
+    model.fit(X_train, y_train)
+    predictions = model.predict(X_test)
+    performance = accuracy_score(y_test, predictions)
+
+    ti.xcom_push(key=f'performance_{model_name}', value=performance)
+
+def select_best_model(**kwargs):
+    ti = kwargs['ti']
+    rf_performance = ti.xcom_pull(key='performance_RandomForest', task_ids='train_rf')
+    gb_performance = ti.xcom_pull(key='performance_GradientBoosting', task_ids='train_gb')
+
+    best_model = 'RandomForest' if rf_performance > gb_performance else 'GradientBoosting'
+    print(f"Best model is {best_model} with performance {max(rf_performance, gb_performance)}")
+
+    return best_model
+
+with dag:
+    t1 = PythonOperator(
+        task_id='feature_engineering',
+        python_callable=feature_engineering,
+    )
+
+    t2 = PythonOperator(
+        task_id='train_rf',
+        python_callable=train_model,
+        op_kwargs={'model_name': 'RandomForest'},
+        provide_context=True,
+    )
+
+    t3 = PythonOperator(
+        task_id='train_gb',
+        python_callable=train_model,
+        op_kwargs={'model_name': 'GradientBoosting'},
+        provide_context=True,
+    )
+
+    t4 = PythonOperator(
+        task_id='select_best_model',
+        python_callable=select_best_model,
+        provide_context=True,
+    )
+
+    t1 >> [t2, t3] >> t4
 ```
 
+## 7. CI/CD
+1. CI/CD 도구는 코드의 통합, 테스트, 빌드 및 배포 과정을 자동화하여 소프트웨어 개발 및 배포 프로세스를 효율적으로 만들기 위해 설계 (도구: Jenkins, Github Actions..)
+2. Workflow Management는 데이터 처리 작업의 스케쥴링, 실행, 모니터링을 자동화하는 데 중점
 
+## 8. 서버, 통신
+1. REST API: 웹 표준 기반 서버와 클라이언트 간의 통신을 구현하기 위한 인터페이스
+2. GET : 서버로부터 정보를 조회, POST : 서버에 데이터를 전송, PUT : 서버에 데이터를 업데이트, DELETE : 서버의 리소스를 삭제
+3. Node.js: 코드가 매우 짧고 쉬워서 빠른 개발 기능에 적합
+
+```shell
+# Node.js 설치 : https://nodejs.org/en
+npm install socker.io
+npm install express
+
+# index.js 작성
+const express = require("express");
+const http = require("http");
+const app = express();
+const server = http.createServer(app);
+app.get('/', (req, res) => {res.send('Welcome to the Bookstore!); });
+const port = 3000;
+server.listen(port, () => console.log (`Bookstore app listening on port ${port}!`));
+
+# 실행
+node index.js
+
+# http://localhost:3000 접속
+
+# Postman (REST API 테스트 Tool) 설치/가입 : https://www.postman.com
+```
 
 
 
