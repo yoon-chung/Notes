@@ -301,7 +301,7 @@ EXPOSE 8080
 CMD airflow webserver -p 8080 & airflow scheduler
 
 Docker ps
-Docker exec -it [container id 또는 이름 bash
+Docker exec -it [컨테이너아이디 or 이름] bash
 Airflow users create --username [사용자명] --firstname [이름] --role Admin --email [이메일]
 #http://localhost:8080
 ```
