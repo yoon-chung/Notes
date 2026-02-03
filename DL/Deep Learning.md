@@ -24,8 +24,7 @@ SW2.0방식, 모든 연산을 기계가 고안 (이미지면 픽셀, 텍스트�
 - fine-tuning없이 태스크 설명 포함해서 text를 입력하면 output 출력함, pretraining된 모델만으로 fine-tuning만큼의 성능 얻음
 - zero-shot: 태스크만 설명만, one-shot: 예제 하나, few-shot: 예제 여러개 추가
 
- <img src="images/dl1.png" width="800">
-
+<img src="../images/dl1.png" width="800">
 
 ### 1.2. 딥러닝 기술 종류
 - AI 구분법: 데이터: 정형데이터, 이미지/동영상, 텍스트, 음성, 학습: 교사, 비교사, 강화, 태스크: 인식, 생성
