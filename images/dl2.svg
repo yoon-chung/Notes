@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" font-family="Arial, sans-serif">
+  <!-- Background -->
+  <rect width="800" height="450" fill="#fefefe"/>
+  
+  <!-- Title and Info Box -->
+  <rect x="20" y="15" width="760" height="85" rx="8" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1.5"/>
+  <text x="40" y="42" font-size="15" font-weight="bold" fill="#212529">함수: f(x,y,z) = (x+y) × z</text>
+  <text x="40" y="62" font-size="14" fill="#495057">데이터: x = -2, y = 5, z = -4, target = -10</text>
+  <text x="40" y="82" font-size="14" fill="#495057">손실함수: L = (f - target)²</text>
+  
+  <!-- Legend -->
+  <text x="500" y="42" font-size="12" fill="#6c757d">→ Forward Pass</text>
+  <text x="500" y="62" font-size="12" fill="#dc3545">← Backward Pass (Gradients)</text>
+  <line x1="470" y1="38" x2="495" y2="38" stroke="#212529" stroke-width="2" marker-end="url(#arrowBlack)"/>
+  <line x1="470" y1="58" x2="495" y2="58" stroke="#dc3545" stroke-width="2" marker-end="url(#arrowRed)"/>
+  
+  <!-- Arrow Markers -->
+  <defs>
+    <marker id="arrowBlack" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#212529"/>
+    </marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#dc3545"/>
+    </marker>
+  </defs>
+  
+  <!-- Input Nodes -->
+  <!-- x node -->
+  <circle cx="100" cy="180" r="28" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="100" y="185" text-anchor="middle" font-size="18" font-weight="bold" fill="#1976d2">x</text>
+  <text x="100" y="225" text-anchor="middle" font-size="13" fill="#666">= -2</text>
+  
+  <!-- y node -->
+  <circle cx="100" cy="300" r="28" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="100" y="305" text-anchor="middle" font-size="18" font-weight="bold" fill="#1976d2">y</text>
+  <text x="100" y="345" text-anchor="middle" font-size="13" fill="#666">= 5</text>
+  
+  <!-- z node -->
+  <circle cx="100" cy="420" r="28" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="100" y="425" text-anchor="middle" font-size="18" font-weight="bold" fill="#1976d2">z</text>
+  <text x="100" y="390" text-anchor="middle" font-size="13" fill="#666">= -4</text>
+  
+  <!-- Addition Node (neutral) -->
+  <circle cx="300" cy="240" r="32" fill="#ffffff" stroke="#495057" stroke-width="2"/>
+  <text x="300" y="248" text-anchor="middle" font-size="28" font-weight="bold" fill="#212529">+</text>
+  
+  <!-- q label -->
+  <text x="370" y="220" font-size="16" font-weight="bold" fill="#495057">q = x + y</text>
+  <text x="370" y="240" font-size="14" fill="#666">= 3</text>
+  
+  <!-- Multiplication Node (neutral) -->
+  <circle cx="520" cy="320" r="32" fill="#ffffff" stroke="#495057" stroke-width="2"/>
+  <text x="520" y="328" text-anchor="middle" font-size="24" font-weight="bold" fill="#212529">×</text>
+  
+  <!-- f output -->
+  <circle cx="700" cy="320" r="28" fill="#fce4ec" stroke="#c2185b" stroke-width="2"/>
+  <text x="700" y="325" text-anchor="middle" font-size="18" font-weight="bold" fill="#c2185b">f</text>
+  <text x="700" y="365" text-anchor="middle" font-size="13" fill="#666">= -12</text>
+  
+  <!-- Forward Pass Arrows -->
+  <!-- x to + -->
+  <line x1="128" y1="180" x2="268" y2="230" stroke="#212529" stroke-width="2" marker-end="url(#arrowBlack)"/>
+  <!-- y to + -->
+  <line x1="128" y1="300" x2="268" y2="250" stroke="#212529" stroke-width="2" marker-end="url(#arrowBlack)"/>
+  <!-- + to × -->
+  <line x1="332" y1="255" x2="490" y2="305" stroke="#212529" stroke-width="2" marker-end="url(#arrowBlack)"/>
+  <!-- z to × -->
+  <line x1="128" y1="410" x2="490" y2="335" stroke="#212529" stroke-width="2" marker-end="url(#arrowBlack)"/>
+  <!-- × to f -->
+  <line x1="552" y1="320" x2="665" y2="320" stroke="#212529" stroke-width="2" marker-end="url(#arrowBlack)"/>
+  
+  <!-- Gradient Labels (Backward Pass) -->
+  <!-- ∂L/∂f -->
+  <rect x="600" y="255" width="130" height="40" rx="5" fill="#ffebee" stroke="#ef5350" stroke-width="1"/>
+  <text x="665" y="280" text-anchor="middle" font-size="13" fill="#c62828">∂L/∂f = 2(f-target)</text>
+  <text x="665" y="245" text-anchor="middle" font-size="12" fill="#c62828" font-weight="bold">= -4</text>
+  
+  <!-- ∂L/∂q -->
+  <rect x="350" y="135" width="150" height="40" rx="5" fill="#ffebee" stroke="#ef5350" stroke-width="1"/>
+  <text x="425" y="160" text-anchor="middle" font-size="13" fill="#c62828">∂L/∂q = z · 2(f-target)</text>
+  <text x="425" y="125" text-anchor="middle" font-size="12" fill="#c62828" font-weight="bold">= 16</text>
+  
+  <!-- ∂L/∂z -->
+  <rect x="250" y="380" width="170" height="40" rx="5" fill="#ffebee" stroke="#ef5350" stroke-width="1"/>
+  <text x="335" y="405" text-anchor="middle" font-size="13" fill="#c62828">∂L/∂z = q · 2(f-target)</text>
+  <text x="335" y="430" text-anchor="middle" font-size="12" fill="#c62828" font-weight="bold">= -12</text>
+  
+  <!-- ∂L/∂x -->
+  <rect x="130" y="135" width="135" height="40" rx="5" fill="#ffebee" stroke="#ef5350" stroke-width="1"/>
+  <text x="197" y="160" text-anchor="middle" font-size="13" fill="#c62828">∂L/∂x = z · 2(f-target)</text>
+  <text x="197" y="125" text-anchor="middle" font-size="12" fill="#c62828" font-weight="bold">= 16</text>
+  
+  <!-- ∂L/∂y -->
+  <rect x="130" y="330" width="135" height="40" rx="5" fill="#ffebee" stroke="#ef5350" stroke-width="1"/>
+  <text x="197" y="355" text-anchor="middle" font-size="13" fill="#c62828">∂L/∂y = z · 2(f-target)</text>
+  <text x="197" y="380" text-anchor="middle" font-size="12" fill="#c62828" font-weight="bold">= 16</text>
+  
+</svg>
