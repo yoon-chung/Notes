@@ -165,4 +165,46 @@ $\frac{df(g(x))}{dx} = \frac{df(g(x))}{dg(x)} \cdot \frac{dg(x)}{dx}$
 
 <img src="../images/dl2.svg" width="800">
 
+#### 5. 역전파 (Backpropagation) 심화
+##### 5.1. 손실함수의 기본가정
+- z: 활성화함수 입력, a: 활성화함수 출력
+- 가정1: 학습 데이터 샘플에 대한 신경망의 총 손실은 각 데이터 샘플에 대한 손실의 합과 같다
+- 가정2: 각 학습 데이터 샘플에 대한 손실은 최종 출력에 대한 함수이다
+##### 5.2. 역전파 기본방정식
+1) Error at the output layer
+$$\delta^L = \nabla_a C \odot \sigma'(z^L)$$
+2) Error relationship between two adjacent layers
+$$\delta^l = \sigma'(z^l) \odot \left( (w^{l+1})^T \delta^{l+1} \right)$$
+3) Gradient of C in terms of bias
+$$\nabla_{b^l} C = \delta^l$$
+4) Gradient of C in terms of weight
+$$\nabla_{w^l} C = \delta^l (a^{l-1})^T$$
+
+##### 5.3. 역전파 알고리즘
+1) Input
+$x$: Set the corresponding activation $a^1$ for the input layer.
+
+2) Feedforward: For each $l = 2, 3, \ldots, L$ compute $z^l = w^l a^{l-1} + b^l$ and $a^l = \sigma(z^l)$.
+
+3) Output error
+$\delta^L$: Compute the vector $\delta^L = \nabla_a C \odot \sigma'(z^L)$.
+
+4) Backpropagate the error: For each $l = L-1, L-2, \ldots, 2$ compute $\delta^l = ((w^{l+1})^T \delta^{l+1}) \odot \sigma'(z^l)$.
+
+5) Output: The gradient of the cost function is given by $\frac{\partial C}{\partial w^l_{jk}} = a^{l-1}_k \delta^l_j$ and $\frac{\partial C}{\partial b^l_j} = \delta^l_j$.
+
+#### 5.4. 모델 파라미터 업뎃 with GD
+1) Input a set of training examples
+2) For each training example
+$x$: Set the corresponding input activation $a^{x,1}$, and perform the following steps:
+
+- Feedforward: For each $l = 2, 3, \ldots, L$ compute $z^{x,l} = w^l a^{x,l-1} + b^l$ and $a^{x,l} = \sigma(z^{x,l})$.
+- Output error: 
+  $\delta^{x,L}$: Compute the vector $\delta^{x,L} = \nabla_a C_x \odot \sigma'(z^{x,L})$.
+- Backpropagate the error: For each $l = L-1, L-2, \ldots, 2$ compute $\delta^{x,l} = ((w^{l+1})^T \delta^{x,l+1}) \odot \sigma'(z^{x,l})$.
+3) Gradient descent: For each $l = L, L-1, \ldots, 2$ update the weights according to the rule.
+$$w^l \rightarrow w^l - \frac{\eta}{m} \sum_x \delta^{x,l} (a^{x,l-1})^T$$
+and the biases according to the rule. 
+$$b^l \rightarrow b^l - \frac{\eta}{m} \sum_x \delta^{x,l}$$
+
 
