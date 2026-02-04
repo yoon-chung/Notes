@@ -207,4 +207,17 @@ $$w^l \rightarrow w^l - \frac{\eta}{m} \sum_x \delta^{x,l} (a^{x,l-1})^T$$
 and the biases according to the rule. 
 $$b^l \rightarrow b^l - \frac{\eta}{m} \sum_x \delta^{x,l}$$
 
+#### 6. 손실함수
+##### 6.1. 대표적 함수
+- **MSE**: L2 Loss, 초반 학습이 빠르지만 이상치에 민감
+- MAE: L1 Loss, 손실함수의 값이 최소값에 가까워져도 미분값이 동일하기에 점핑이 일어날 수 있으며 손실 함수의 크기를 직접 줄여야한다
+- Huber Loss: 오차 일정수준 이하일 때 MSE, 그렇지않으면 MAE 사용, 두 함수의 장점 결합
+- **CE (Cross Entropy)**: 주어진 확률변수 또는 사건집합에 대한 두 확률 분포 간의 차이를 측정하는 함수
+- BCE: 이진 분류 문제에 사용되는 CE. (=Log Loss)
+- Hinge Loss: 모델이 만드는 결정 경계와 데이터 사이 마진을 최대화하려는 손실함수 (=SVM Loss), 이진 분류 문제에 사용.
+##### 6.2. 해석
+- Backpropagation관점: 레이어 수가 증가할 수록 활성화함수의 미분값이 0에 수렴하는 문제 발생 (Vanishing Gradient Problem). 이런 관점에서, 미분값이 0, 1로만 표현되는 ReLU 선택 가능.
+- Maximum Likelihood관점: 모델의 출력이 정해진 확률분포(가우시안)에서 나올 확률. -log를 붙여 손실함수값을 최소화하도록. (가정1: 모든 데이터는 서로 독립, 가정2: 모든 데이터는 동일한 확률분포 가짐) 
+- 보통 회귀는 MSE, 분류는 CE 사용
+
 
