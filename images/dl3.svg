@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 520" font-family="'Times New Roman', serif">
+  <!-- Background -->
+  <rect width="1100" height="520" fill="#ffffff"/>
+  
+  <!-- Markers -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+    </marker>
+  </defs>
+  
+  <!-- ============ GD Box ============ -->
+  <rect x="30" y="100" width="100" height="50" rx="5" fill="#fff" stroke="#333" stroke-width="2"/>
+  <text x="80" y="132" text-anchor="middle" font-size="20" font-weight="bold" fill="#333">GD</text>
+  
+  <!-- Arrow GD to SGD -->
+  <line x1="80" y1="150" x2="80" y2="210" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- ============ SGD Box ============ -->
+  <rect x="30" y="220" width="100" height="50" rx="5" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="80" y="252" text-anchor="middle" font-size="20" font-weight="bold" fill="#1565c0">SGD</text>
+  
+  <!-- SGD Equation -->
+  <text x="80" y="300" text-anchor="middle" font-size="18" fill="#333">W ← W − η ∂L/∂W</text>
+  
+  <!-- Arrow SGD to Momentum -->
+  <path d="M130,245 L200,245 L200,125 L270,125" fill="none" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Arrow SGD to AdaGrad -->
+  <path d="M130,245 L200,245 L200,365 L270,365" fill="none" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- ============ Momentum Box ============ -->
+  <rect x="275" y="100" width="150" height="50" rx="5" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+  <text x="350" y="132" text-anchor="middle" font-size="20" font-weight="bold" fill="#e65100">Momentum</text>
+  
+  <!-- Momentum Equations -->
+  <text x="350" y="180" text-anchor="middle" font-size="18" fill="#333">v ← αv − η ∂L/∂W</text>
+  <text x="350" y="210" text-anchor="middle" font-size="18" fill="#333">W ← W + v</text>
+  
+  <!-- Arrow Momentum to Nesterov -->
+  <line x1="425" y1="125" x2="545" y2="125" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- ============ AdaGrad Box ============ -->
+  <rect x="275" y="340" width="150" height="50" rx="5" fill="#e8f5e9" stroke="#43a047" stroke-width="2"/>
+  <text x="350" y="372" text-anchor="middle" font-size="20" font-weight="bold" fill="#2e7d32">AdaGrad</text>
+  
+  <!-- AdaGrad Equations -->
+  <text x="350" y="420" text-anchor="middle" font-size="17" fill="#333">h ← h + ∂L/∂W ⊙ ∂L/∂W</text>
+  <text x="350" y="450" text-anchor="middle" font-size="17" fill="#333">W ← W − η (1/√h) ∂L/∂W</text>
+  
+  <!-- Arrow AdaGrad to RMSProp -->
+  <line x1="425" y1="365" x2="545" y2="365" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- ============ Nesterov Box ============ -->
+  <rect x="550" y="100" width="150" height="50" rx="5" fill="#fce4ec" stroke="#d81b60" stroke-width="2"/>
+  <text x="625" y="132" text-anchor="middle" font-size="20" font-weight="bold" fill="#c2185b">Nesterov</text>
+  
+  <!-- Nesterov Equations -->
+  <text x="625" y="180" text-anchor="middle" font-size="17" fill="#333">v ← αv − η ∂L/∂W(W+αv)</text>
+  <text x="625" y="210" text-anchor="middle" font-size="18" fill="#333">W ← W + v</text>
+  
+  <!-- ============ RMSProp Box ============ -->
+  <rect x="550" y="340" width="150" height="50" rx="5" fill="#e1bee7" stroke="#8e24aa" stroke-width="2"/>
+  <text x="625" y="372" text-anchor="middle" font-size="20" font-weight="bold" fill="#7b1fa2">RMSProp</text>
+  
+  <!-- RMSProp Equations -->
+  <text x="625" y="420" text-anchor="middle" font-size="15" fill="#333">h ← βh + (1−β)(∂L/∂W ⊙ ∂L/∂W)</text>
+  <text x="625" y="450" text-anchor="middle" font-size="15" fill="#333">W ← W − η (1/√(h+ε)) ⊙ ∂L/∂W</text>
+  
+  <!-- Arrow Nesterov to Adam -->
+  <path d="M700,125 L770,125 L770,230 L850,230" fill="none" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Arrow RMSProp to Adam -->
+  <path d="M700,365 L770,365 L770,260 L850,260" fill="none" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- ============ Adam Box ============ -->
+  <rect x="855" y="215" width="140" height="60" rx="5" fill="#ffebee" stroke="#e53935" stroke-width="2"/>
+  <text x="925" y="252" text-anchor="middle" font-size="22" font-weight="bold" fill="#c62828">Adam</text>
+  
+  <!-- Adam Equations -->
+  <text x="925" y="310" text-anchor="middle" font-size="17" fill="#333">m ← β<tspan font-size="12" baseline-shift="sub">1</tspan>m + (1−β<tspan font-size="12" baseline-shift="sub">1</tspan>) ∂L/∂W</text>
+  <text x="925" y="340" text-anchor="middle" font-size="17" fill="#333">v ← β<tspan font-size="12" baseline-shift="sub">2</tspan>v + (1−β<tspan font-size="12" baseline-shift="sub">2</tspan>)(∂L/∂W)<tspan font-size="12" baseline-shift="super">2</tspan></text>
+  <text x="925" y="370" text-anchor="middle" font-size="17" fill="#333">W ← W − η m/√(v+ε)</text>
+  
+  <!-- Labels -->
+  <text x="200" y="60" text-anchor="middle" font-size="14" fill="#7b1fa2" font-style="italic">Step Direction</text>
+  <line x1="200" y1="70" x2="200" y2="240" stroke="#7b1fa2" stroke-width="1" stroke-dasharray="4,4"/>
+  
+  <text x="200" y="500" text-anchor="middle" font-size="14" fill="#7b1fa2" font-style="italic">Step Size</text>
+  <line x1="200" y1="250" x2="200" y2="490" stroke="#7b1fa2" stroke-width="1" stroke-dasharray="4,4"/>
+  
+</svg>
