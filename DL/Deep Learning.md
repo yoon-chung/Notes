@@ -313,3 +313,16 @@ $$b^l \rightarrow b^l - \frac{\eta}{m} \sum_x \delta^{x,l}$$
 - LSTM: Forget gate(기존 정보중 어떤 정보를 버릴지 선택), Output gate(다음 상태로 어떤 정보를 내보낼지), Input Gate(입력 데이터 중 어떤 정보를 다음으로 저장할지)
 - GRU(Gated Recurrent Unit): Reset gate, Update gate(LSTM의 output+input 합친느낌) 두개. 적은 파라미터로 유사한 성능
 
+#### 3. 딥러닝 역사
+##### 3.1. 발전
+- AlexNet: 2012년 등장 이후 딥러닝 전성기
+- GAN(2014): 이미지 생성의 출발점 모델
+- ResNet(2015): 네트워크 깊이를 크게 확장하면서 효율 학습 가능하게. Residual connection 도입
+- transformer(2017): self-attention 매커니즘 사용
+##### 3.2. 최신 동향
+- BERT(2018): 언어이해를 위한 훈련된 양방향 transformer 구조 사용(pretraining, finetuning)
+- GPT(2018): generative pre-trained transformer
+- ChatGPT(2022): OpenAI에서 개발한 GPT아키텍처 기반 챗봇 전용 모델
+- LLMs: OpenLLM, 허깅페이스의 리더보드 참고  
+- **Paperswithcode** 참고사이트: 최신 모델/데이터셋 관련 소식 뉴스레터
+
