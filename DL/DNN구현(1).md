@@ -307,7 +307,7 @@ class DNN(nn.Module):
                 nn.init.zeros_(m.bias)
     
     def count_parameters(self):
-        return sum(p.numel() for p in self.parameters() if p.requires_grad)
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)  # numel(): 텐서의 원소개수를 반환하는 함수
 ```
 
 #### 사용 예시
