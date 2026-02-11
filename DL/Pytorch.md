@@ -91,3 +91,21 @@ with torch.no_grad():
 ```
 - 예측결과와 실제 라벨 비교하여 모델 성능 평가
 
+## 4. 전이학습
+### 1. 개념
+- Pretrained Model: 대규모 데이터셋 기반으로 학습된 모델, 학습 task에 대한 일반적 지식 가짐 (최근 GPT, PALM등)
+- 전이학습: pretrained model 지식을 다른 task에 활용. 일반적 지식 기반으로 더 효과적으로 새로운 지식 학습 가능
+- Fine-Tuning: 전이학습의 한 방법. Pretrained model를 그대로 or layers를 추가한 후 새로운 작업에 맞는 데이터로 모델을 추가로 더 훈련시키는 방법
+- Domain adaptation: 전이학습의 한 방법. 도메인은 데이터가 속하는 분포. A도메인에서 학습한 모델을 B도메인으로 전이하여 도메인 간 차이를 극복하는 목적. (예) A:실제사진, B:애니메이션
+### 2. 전이학습 전략
+- 도메인이 비슷하고 dataset 크기 작을때 - 마지막 classifier만 추가 학습 (나머지 freeze)
+- 도메인 비슷하고 dataset 크기 클때 - classifier + 다른 일부 layers로 추가 학습
+- 도메인이 매우 다르고 dataset 크기 작으면 - 전이학습 부적합
+- 도메인이 매우 다르고 dataset 크기 꽤 클때 - pretrained model의 꽤 많은 layers를 학습해야함
+- learning rate: 작게 학습 (pretrained model의 일반적 지식을 크게 업뎃하지 않기위해)
+
+### 3. 모델 커뮤니티 
+- Timm for CV: CV분야에서 사용하는 사전 학습 모델 라이브러리
+- Hugging Face for NLP, CV: 초기 NLP위주 -> 다양한 분야 사전학습 모델 라이브러리 제공
+
+
