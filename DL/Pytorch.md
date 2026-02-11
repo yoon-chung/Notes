@@ -108,4 +108,21 @@ with torch.no_grad():
 - Timm for CV: CV분야에서 사용하는 사전 학습 모델 라이브러리
 - Hugging Face for NLP, CV: 초기 NLP위주 -> 다양한 분야 사전학습 모델 라이브러리 제공
 
+## 5. Pytorch Lightning
+### 1. 배경
+- 코드 양이 늘어나며 복잡성이 증가 -> 딥러닝 모델 구축의 코드 템플릿, High-level 인터페이스 제공
+- ‘.to(device)’ 필요없이 GPU를 우선으로 사용함
+- LightningModule로 클래스 선언
+
+### 2. Trainer
+- LightningModule의 메서드를 이용해 모델 학습을 실행하는 클래스. 예) trainer.fit 실행하면 ‘training_step’, ‘validation_step’ 메서드 사용해 학습
+- 
+```
+model = Classifier(num_classes = 10, dropout_ratio = 0.2)
+trainer = Trainer(max_epochs = 1000,
+		  accelerator = ‘auto’,
+                          callbacks = [callbacks.EarlyStopping(monitor = ‘valid_loss’, mode=’min’)],
+		   logger = CSVLogger(save_dir = “./csv_logger”, name=’test’))
+trainer.fit(model, train_dataloader, valid_dataloader)
+```
 
