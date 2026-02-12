@@ -126,3 +126,44 @@ trainer = Trainer(max_epochs = 1000,
 trainer.fit(model, train_dataloader, valid_dataloader)
 ```
 
+
+### 3. Pytorch code => Pytorch Lightning code
+#### 1. LightningModule 실습
+- 설치: pip install lightning 
+- init: Pytorch의 ‘nn.Module’의 __init__에서 선언한 레이어를 동일하게 작성하고 새로운 메트릭, 손실함수 등 선언
+- forward는 동일하게 작성
+- configure_optimizers: 최적화 알고리즘, 학습률 스케줄러 작성
+- training_step: 미니배치를 받아 학습연산을 거쳐 손실을 반환. ‘.to(device)’, ‘model.train()’, ‘optimizer.zero_grad()’, ‘loss.backward()’, ‘optimizer.step()’는 생략
+- validation_step: ‘model.eval()’, ‘with torch.no_grad()’ , ‘.to(device)’ 생략
+- test_step: 각 미니배치의 메트릭 계산해 미니배치 수 만큼 메트릭 평균
+- predict_step: ‘model.eval()’, ‘with torch.no_grad()’ , ‘.to(device)’ 생략
+#### 2. Trainer 실습
+- EarlyStopping, CSVLogger 사용 
+- CSVLogger로 저장된 로그는 ‘[save_dir]/[name]’위치에 ‘metrics.csv’로 저장됨
+- callbacks의 인자로 LearningRateMoniotr 추가하면 ‘metrics.csv’에 학습률 기록
+‘TensorBoardLogger’, ‘WandbLogger’ 사용
+
+### 4. 하이드라
+파라미터 관리를 위해, 별도 설정파일을 작성하여 관리하는데 사용하는 오픈소스 프레임워크
+- yaml 데이터 포맷 사용, 커맨드 라인으로 쉽게 변경
+- config group: 설정파일을 그룹으로 묶어 관리 
+- ‘configs/config.yaml’ 디폴트로 실행할 리스트가 구성되는 베이스
+- @hydra.main(config_path=’./configs’, config_name=’config’)
+- main(cfg): 실행할 함수의 인자, dictionary타입
+- 객체 방식 접근(e.g. cfg.data.batch_size), 딕셔너리 방식 접근(e.g. cfg[‘data’][‘batch_size’])
+- 커맨드라인으로 변경: python test.py model=resnet34
+- 새로운 설정값 추가: python test.py +optimizer.weight_decay=0.001
+- 설정값 변경: python test.py ++optimizer.lr=0.05 
+- `.hydra` 폴더: config.yaml - 프로그래머가 사용한 설정값이 기록, overrides.yaml - 프로그래머가 터미널의 커맨드라인을 통해 오버라이딩한 설정값이 기록, hydra.yaml - Hydra의 내부적인 설정값
+- `instantiate`: 설정 파일에서 정의한 클래스의 인스턴스를 쉽게 생성
+- 터미널의 커맨드라인에서 `--multirun` 옵션을 사용하면 여러 설정 파일의 조합을 한 번에 여러 번 실행
+
+### 5. 라이트닝과 하이드라
+- 설치: pip install hydra-core
+- 데이터와 관련된 파라미터(`data_dir`, `batch_size`, `valid_split`), CNN 구성과 관련된 파라미터(`model_name`, `num_classes`, `dropout_ratio`), LightningModule의 `configure_optimizers` 메서드에 필요한 optimizer, scheduler 파라미터, Trainer의 `callbacks`, `logger` 인자에 필요한 `EarlyStopping`, `LearningRateMonitor`, `WandbLogger`에 필요한
+파라미터를 설정 파일로 작성
+- 앞서 정의한 설정 파일들을 이용해 `defaults`를 구성
+- multi-run 모드: `python trainer.py --multirun model=simple_cnn,resnet18,resnet34
+scheduler=step_lr,exponential_lr optimizer=sgd,adam`을 입력
+
+
