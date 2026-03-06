@@ -39,11 +39,11 @@
 
 ### 3.1.
 <img src="../images/transformer구조.png" width="800">
-- 출처: https://medium.com/@lordmoma/the-transformer-model-revolutionizing-natural-language-processing-a16be54ddb1e
 
+- 출처: https://medium.com/@lordmoma/the-transformer-model-revolutionizing-natural-language-processing-a16be54ddb1e
 - Long-range Dependency 해결: 멀리 떨어진 데이터(단어 또는 이미지 패치) 간의 상관관계를 효과적으로 학습
-- Attention 메커니즘: 데이터 내의 여러 객체나 단어들 사이의 상호작용과 중요도를 파악하여 문맥을 이해
-- 범용성: 자연어 처리(NLP)뿐만 아니라 컴퓨터 비전(ViT) 등 다양한 분야의 백본(Backbone)으로 활용
+- 높은 연산 효율성과 확장성. 데이터셋과 모델 크기가 계속 커져도 모델 성능이 포화되지 않고 지속적으로 증가
+- 범용성: 자연어 처리(NLP), 컴퓨터 비전(ViT) 등 다양한 분야의 백본(Backbone)으로 활용. Large Language Model 발전의 발판이 됨
 
 ### 3.2. 파이프라인: input text -> tokenized text -> embeddings+positional info
 - Tokenization: 문장을 의미 있는 최소 단위인 토큰(단어, 구두점 등)으로 분할하고 사전에 정의된 번호를 할당
@@ -60,5 +60,23 @@
 - 이후, sequence context가 반영된 embedding을 fully connected layer에 통과
 - Multi-head attention과 feed forward를 합하여 encoder라고 정의
 - Encoder를 여러개 쌓아 깊은 네트워크를 만들 수 있음
+
+## 4. Transformer Backbone 모델
+- Image -> Patch -> Embedding -> Transformer Encoder -> Task Head
+
+### 4.1. Vision Transformer (ViT)
+- Patching: 이미지를 격자 형태의 패치(예: 16x16)로 분할하여 각 패치를 하나의 토큰처럼 처리함
+- Linear Projection: 분할된 패치들을 평탄화(Flatten)한 후 선형 투영을 통해 고정된 크기의 벡터인 임베딩으로 변환함
+- CLS Token: 이미지 전체의 정보를 함축하기 위해 임베딩된 패치들 앞에 학습 가능한 별도의 분류 토큰을 추가함
+- Positional Embedding: Transformer는 데이터의 순서 정보를 알 수 없으므로, 패치의 위치 정보를 나타내는 임베딩을 더해줌
+- Transformer Encoder: 기존 Transformer와 동일방식으로 self-attention 계산 및 multi-head적용
+- MLP Head: 2개의 hidden layer, GELU activation function으로 구성
+
+### 4.2. Swin Transformer
+- Hierarchical Structure: 작은 패치에서 시작해 점진적으로 인접 패치들을 합치는(Patch Merging) 계층적 구조를 가져 다양한 크기의 객체 탐지에 유리함
+- Patch Partitioning: 이미지를 patch로 분할할 때 RGB 채널은 concatenation
+- Linear embedding: ViT의 embedding 방식과 동일하나 classification token을 추가하지 않음
+- Relative Position Bias: Transformer, ViT와 다르게 positional embedding이 없음. 절대적인 위치 값 대신 패치들 간의 상대적인 위치 관계를 Attention 점수에 반영하여 공간적 정보를 학습함. 
+- Shifted Window: 일정 크기의 window를 정하고, window 내에 있는 patch들끼리만 self-attention을 계산하도록 함
 
 
