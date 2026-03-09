@@ -27,3 +27,57 @@
 - 결속(의미적 연결성 분석), 일관성(대화에 지속참여하며 일관성 발견), 차례얻기(접속사로 말을 이어나감), 협조의 원칙, 함의(화자의 암시)
 ### 6. 자연어처리의 언어학
 - 키워드 분석, 토큰화(전처리의 첫단계), 품사태깅(POS Tagging), 구문분석, 의미/담화분석, 문법 교정, BERT(풍부한 언어정보 계층구조를 반영하는 모델)
+
+## 2. 텍스트 전처리
+### 1. 전처리 (Preprocessing)
+- data cleaning, normalization, feature selection, transformation, missing values imputation, instance selection, data integration, noise identification, discretization
+- HTML태그, 특수문자, 이모티콘, 정규표현식, stopword(불용어), stemming(어간추출), lemmatizing(표제어추출)
+- 파이프라인: 문서->토큰화->텍스트전처리->Bag of Words
+- KoNLPy: 한국어 자연어처리 위한 파이썬 lib
+- NLTK: 영어 텍스트 위한 파이썬 lib
+
+### 2. 토큰화 (Tokenization)
+- 토큰 기준 다름 (어절, 단어, 형태소, 음절, 자소)
+- 고려사항: 구두점, 특수문자, 줄임말과 단어내 띄어쓰기, 문장 토큰화
+- 한국어 토큰화의 어려움. 형태소 단위의 토큰화가 필요하기 때문
+- KoNLPy: morphs(형태소 추출), pos(품사 태깅), nouns(명사 추출)
+- SentencePiece: 구글의 토큰화 도구
+
+### 3. 정제 (Cleaning)
+- stopwords: NLTK에서는 여러 불용어를 사전 정의해둠. (아, 휴, 음, 어..) 
+
+### 4. 정규화 (Normalization)
+- stemming vs lemmatization: 어간 추출 vs 원형 복원. 심플신속 vs 정확느림
+- stemming: allowance -> allow, formalize -> formal 
+- lemmatization(표제어 추출): watched -> watch, has -> have, cats -> cat 
+
+### 5. 편집거리 (Edit distance)
+- Levenshtein distance: 한 string s1을 s2로 변환하는 최소 횟수를 거리로 표현
+- string을 변화하기 위한 edit 방법을 세가지로 분류
+
+### 6. 정규표현식 
+- Regex: 특정한 규칙 가진 문자열 집합을 표현하는데 사용하는 형식 언어 
+
+```
+[ ]   : 문자, 숫자 범위를 표현하며 +, -, . 등의 기호를 포함
+{개수}   : 특정 개수의 문자, 숫자를 표현
+{시작개수, 끝개수}   : 특정 개수 범위의 문자, 숫자를 표현
++   : 1개 이상의 문자를 표현. 예) a+b 는 ab, aab, aaab
+*   : 0개 이상의 문자를 표현. 예) a*b 는 b, ab, aab, aaab
+?   : 0개 또는 1개의 문자를 표현. 예) a?b 는 b, ab
+.   : 문자 1개만 표현
+^   :  [ ] 앞에 붙이면 특정 문자 범위로 시작하는지 판단
+/   :  [ ] 안에 넣으면 특정 문자 범위를 제외
+$   : 특정 문자 범위로 끝나는지 판단
+|   : 여러 문자열 중 하나라도 포함되는지 판단
+( )   : 정규표현식을 그룹으로 묶음. 그룹에 이름을 지을 때는 ?P<이름> 형식
+\   : 정규표현식에서 사용하는 문자를 그대로 표현하려면 앞에 \를 붙임. 예) \+, \*
+\d   : [0-9]와 같음. 모든 숫자
+\D   : [^0-9]와 같음. 숫자를 제외한 모든 문자
+\w   : [a-zA-Z0-9_]와 같음. 영문 대소문자, 숫자, 밑줄 문자
+\W   : [^a-zA-Z0-9_]와 같음. 영문 대소문자, 숫자, 밑줄 문자를 제외한 모든 문자
+\s   : [ \t\n\r\f\v]와 같음. 공백(스페이스), \t, \n, \r, \f, \v을 포함
+\S   : [^ \t\n\r\f\v]와 같음. 공백을 제외하고 \t, \n, \r, \f, \v만 포함
+```
+
+
