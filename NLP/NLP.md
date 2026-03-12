@@ -109,5 +109,15 @@ $   : 특정 문자 범위로 끝나는지 판단
 ### 4. 문서 요약
 - 추출 요약, 추상적 요약(다른 표현으로 재구성) 
 
-
-
+## 5. 자연어처리 역사
+### 1. 규칙/통계 기반: 전문가가 만듬
+### 2.  ML/DL 기반: 지도학습, 비지도학습
+### 3.  뉴럴심볼릭 기반: 전문가 데이터 활용하여 딥러닝 모델에 주입
+### 4.  Pretrain-Finetuning 기반
+- 대량의 말뭉치로 언어 능력을 pre-training 이후 task-specific fine-tuning
+- Pretraining: 내가 원하는 task 이외의 다른 task의 데이터를 이용하여 주어진 모델을 먼저 학습하는 과정
+- Finetuning: 사전학습된 모델을 원하는 task에 해당하는 데이터, 학습 방식으로 다시한번 재학습 시키는 과정
+### 5. LLM 기반
+- Scaling Laws for Neural Language Models (OpenAI)
+- Foundation Models: 만능 모델 (특정 task에 국한되지 않음)
+- Prompt engineering과 같은 새로운 직군 등장
