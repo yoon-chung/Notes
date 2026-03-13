@@ -125,5 +125,16 @@ $   : 특정 문자 범위로 끝나는지 판단
 - Foundation Models: 만능 모델 (특정 task에 국한되지 않음)
 - Prompt engineering과 같은 새로운 직군 등장
 
+## 6. 딥러닝 기반 기초
+### 1. RNN
+- sequence-to-sequence: 입력-출력
+- 인코더: 입력 시퀀스를 받아 고정된 길이의 벡터로 변환. 문맥 벡터
+- 디코더: 문맥 벡터를 받아 출력 시퀀스를 순차생성. (auto regressive)
+- RNN(Recurrent Neural Networks): 시계열특성 다루는데에 효과적. 때문에 자연어처리에 효과적임 (이미지에는 CNN적합) 
+- 모든 파라미터를 공유. 시간순서역전파
+- LSTM(Long short-term Memory): RNN에서 발생하는 Long-term dependency problem 완화 방법. 필요한 정보만을 선택적으로 업뎃/삭제 방법 도입 (정보를 잘 기억하고 활용)
+
+
+
 
 
