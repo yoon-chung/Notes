@@ -134,6 +134,10 @@ $   : 특정 문자 범위로 끝나는지 판단
 - 모든 파라미터를 공유. 시간순서역전파
 - LSTM(Long short-term Memory): RNN에서 발생하는 Long-term dependency problem 완화 방법. 필요한 정보만을 선택적으로 업뎃/삭제 방법 도입 (정보를 잘 기억하고 활용)
 
+### 2. Attention
+- 문맥에 따라 집중할 단어를 결정하는 방식. Long-term dependancy해결
+- 시퀀스의 길이가 길수록 attention이 없으면 성능 저하
+- 
 
 
 
