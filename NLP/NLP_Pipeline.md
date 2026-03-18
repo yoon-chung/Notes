@@ -46,7 +46,7 @@ Output : 0 or 1  (클래스 레이블)
 
 ## 2. Dataset & Tokenizing
 
-### 2.1 데이터 로드 — `pandas.read_csv`
+### 2.1 데이터 로드
 
 ```python
 import pandas as pd
@@ -132,7 +132,7 @@ encodings = tokenizer(
 ```
 
 > **주의**: 토크나이저와 모델은 **반드시 동일한 체크포인트**를 사용해야.  
-> 어휘 사전(vocabulary)이 다르면 토큰 ID 불일치로 학습이 불가능.
+> 어휘 사전(vocabulary)이 다르면 토큰 ID 불일치로 학습 불가능.
 
 ---
 
@@ -190,7 +190,7 @@ training_args = TrainingArguments(
 )
 ```
 
-> 💡 **Warmup 직관**: 모델 초기화 직후에는 파라미터가 불안정.  
+> **Warmup 직관**: 모델 초기화 직후에는 파라미터가 불안정.  
 > 큰 학습률을 바로 적용하면 학습이 발산할 수 있으므로, 초기 N step 동안 학습률을 점진적으로 키움.
 
 **주요 인자 정리**
@@ -325,7 +325,7 @@ print(classification_report(true_labels, predictions))
 
 **평가 지표 선택 기준**
 
-| 지표 | 언제 쓰나 |
+| 지표 | 선택 기준 |
 |------|----------|
 | **Accuracy** | 클래스가 균형 잡혀 있을 때 |
 | **F1 micro** | 클래스 불균형 데이터, 전체 샘플 기준 성능 필요 시 |
