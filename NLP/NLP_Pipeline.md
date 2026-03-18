@@ -131,7 +131,7 @@ encodings = tokenizer(
 )
 ```
 
-> ⚠️ **주의**: 토크나이저와 모델은 **반드시 동일한 체크포인트**를 사용해야.  
+> **주의**: 토크나이저와 모델은 **반드시 동일한 체크포인트**를 사용해야.  
 > 어휘 사전(vocabulary)이 다르면 토큰 ID 불일치로 학습이 불가능.
 
 ---
@@ -150,15 +150,6 @@ model = AutoModelForSequenceClassification.from_pretrained(
     num_labels=2,  # 이진 분류: 0 or 1
 )
 ```
-
-**체크포인트 일치 원칙**
-
-```
-Tokenizer checkpoint  ──┐
-                        ├── 반드시 동일
-Model checkpoint      ──┘
-```
-
 ---
 
 ### 3.2 Trainer
