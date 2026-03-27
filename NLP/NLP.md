@@ -145,5 +145,120 @@ $   : 특정 문자 범위로 끝나는지 판단
 - Multi-head Attention: Attention(Query, Key, Value)을 여러 개 Head 로 나눠서 병렬로 계산
 - Positional Encoding: 입력 시퀀스의 단어들이 어떤 순서로 들어왔는지 에 대한 정보가 누락되기에 이를 보완. Input embedding 값에 더하여 인코더와 디코더의 입력값으로 입력
 
+## 7. BERT (Bidirectional Encoder Representations from Transformers)
+### 1. 개요
+- Google, 2018. "Pre-training of Deep Bidirectional Transformers for Language Understanding"
+- Transformer의 **인코더**만 사용한 모델
+- 사전학습(Pre-training) + 미세조정(Fine-tuning) 패러다임의 대표 모델
+- 핵심: **양방향(Bidirectional)** 문맥 이해. 왼쪽+오른쪽 문맥을 동시 반영
+
+### 2. 사전학습 (Pre-training)
+- 대량의 비라벨 텍스트 데이터로 언어 자체를 학습
+- **MLM (Masked Language Model)**
+  - 입력 토큰의 15%를 [MASK]로 치환 후 해당 토큰을 예측
+  - 80% [MASK] 토큰으로 대체 / 10% 랜덤 토큰으로 대체 / 10% 원래 토큰 유지
+  - 양방향 문맥을 학습할 수 있는 핵심 전략
+- **NSP (Next Sentence Prediction)**
+  - 두 문장이 연속인지 아닌지 이진 분류. 문장 간 관계 이해 학습 (IsNext / NotNext)
+
+### 3. 입력 표현 (Input Representation)
+- 세 가지 임베딩의 합:
+  - **Token Embedding**: WordPiece 토큰화 (서브워드 단위)
+  - **Segment Embedding**: 문장 A / 문장 B 구분
+  - **Position Embedding**: 토큰의 위치 정보 (학습 가능한 파라미터)
+- 특수 토큰: [CLS] 문장 시작(분류용), [SEP] 문장 구분
+
+### 4. 미세조정 (Fine-tuning)
+- 사전학습된 BERT 위에 task-specific layer 추가 후 재학습
+- 적용 태스크 예시:
+  - 문장 분류: [CLS] 토큰의 출력 벡터 활용 (감성분석, 스팸분류 등)
+  - 개체명 인식(NER): 각 토큰의 출력 벡터로 BIO 태깅
+  - 질의응답(QA): 정답 시작/끝 위치를 예측 (SQuAD)
+  - 문장 쌍 분류: 두 문장 관계 판별 (유사도, NLI)
+
+### 5. 모델 구조
+- BERT-Base: 12 layers, 768 hidden, 12 heads, 110M 파라미터
+- BERT-Large: 24 layers, 1024 hidden, 16 heads, 340M 파라미터
+
+### 6. 한국어 BERT
+- KoBERT (SKT), KorBERT (ETRI), multilingual BERT (Google)
+- 한국어 특성상 형태소 단위 토큰화가 성능에 큰 영향
+
+---
+
+## 8. GPT (Generative Pre-trained Transformer)
+### 1. 개요
+- OpenAI. GPT-1(2018), GPT-2(2019), GPT-3(2020), GPT-4(2023)
+- Transformer의 **디코더**만 사용한 모델
+- 핵심: **단방향(Unidirectional/Auto-regressive)** 텍스트 생성. 왼쪽→오른쪽 순차 예측
+- BERT와의 차이: BERT는 이해(인코더), GPT는 생성(디코더) 중심
+
+### 2. 사전학습 방식
+- **CLM (Causal Language Modeling)**
+  - 이전 토큰들을 보고 다음 토큰을 예측 (auto-regressive)
+  - P(w_t | w_1, w_2, ..., w_{t-1})
+  - Masked Self-Attention: 미래 토큰을 볼 수 없도록 마스킹
+
+### 3. GPT 시리즈 발전
+- **GPT-1**: 사전학습 + 미세조정 구조 제시. 12 layers
+- **GPT-2**: 미세조정 없이도 다양한 태스크 수행 가능 (Zero-shot). 1.5B 파라미터
+- **GPT-3**: Few-shot / In-context Learning의 등장. 175B 파라미터
+  - In-context Learning: 별도 학습 없이 프롬프트에 예시를 넣어 태스크 수행
+  - Zero-shot: 예시 없이 지시만으로 수행
+  - One-shot: 예시 1개 제공
+  - Few-shot: 예시 여러 개 제공
+- **GPT-4**: 멀티모달(텍스트+이미지 입력), 더 긴 문맥 처리
+
+### 4. RLHF (Reinforcement Learning from Human Feedback)
+- ChatGPT(GPT-3.5)에 적용된 학습 방식
+- 과정: SFT(Supervised Fine-Tuning) → Reward Model 학습 → PPO로 강화학습
+- 인간의 선호도를 반영하여 더 유용하고 안전한 응답 생성
+
+### 5. Scaling Law
+- 모델 크기(파라미터), 데이터 양, 연산량이 증가할수록 성능이 예측 가능하게 향상
+- Emergent Abilities: 일정 규모 이상에서 갑자기 나타나는 능력 (추론, 코드생성 등)
+
+---
+
+## 9. BART (Bidirectional and Auto-Regressive Transformers)
+### 1. 개요
+- Facebook(Meta), 2019. "Denoising Sequence-to-Sequence Pre-training"
+- Transformer의 **인코더 + 디코더** 모두 사용 (Seq2Seq 구조)
+- BERT(양방향 인코더) + GPT(자기회귀 디코더)의 장점 결합
+- 핵심: **노이즈 제거(Denoising)** 방식의 사전학습
+
+### 2. 사전학습 (Noising + Denoising)
+- 원본 텍스트에 노이즈를 추가한 뒤, 원본을 복원하도록 학습
+- **노이즈 기법 (Corruption Schemes)**:
+  - Token Masking: BERT처럼 토큰을 [MASK]로 치환
+  - Token Deletion: 토큰을 삭제 (위치 정보도 사라짐 → 더 어려운 태스크)
+  - Text Infilling: 연속된 토큰 span을 하나의 [MASK]로 대체 (span 길이는 포아송 분포)
+  - Sentence Permutation: 문장 순서를 랜덤으로 섞음
+  - Document Rotation: 문서의 시작점을 랜덤으로 변경
+- Text Infilling이 가장 효과적인 것으로 실험 결과 확인
+
+### 3. 모델 구조
+- 인코더: 양방향. 노이즈가 추가된 입력을 처리 (BERT와 유사)
+- 디코더: 자기회귀. 원본 텍스트를 순차적으로 복원 (GPT와 유사)
+- BERT-Large와 동일한 규모: 각각 6 layers 인코더 + 6 layers 디코더
+
+### 4. Finetuning 및 적용 태스크
+- **문서 요약**: BART가 특히 강점을 보이는 태스크 
+- **기계번역**: 인코더를 다른 언어의 인코더로 교체하여 활용 가능
+- **텍스트 분류**: 디코더의 마지막 토큰 출력을 분류에 활용
+- **질의응답**: 인코더에 질문+문서, 디코더에서 답변 생성
+- **추상적 요약(Abstractive Summarization)**: Seq2Seq 구조의 장점이 발휘됨
+
+### 5. BERT / GPT / BART 비교
+
+| 구분 | BERT | GPT | BART |
+|------|------|-----|------|
+| 구조 | 인코더 | 디코더 | 인코더+디코더 |
+| 방향 | 양방향 | 단방향(→) | 양방향 인코더 + 단방향 디코더 |
+| 사전학습 | MLM, NSP | CLM | Denoising (노이즈 복원) |
+| 강점 | 이해(분류, NER, QA) | 생성(텍스트 생성) | 이해+생성(요약, 번역) |
+| 대표 활용 | 감성분석, 개체명인식 | 챗봇, 코드생성 | 문서요약, 기계번역 |
+
+
 
 
