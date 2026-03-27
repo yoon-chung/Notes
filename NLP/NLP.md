@@ -125,9 +125,9 @@ $   : 특정 문자 범위로 끝나는지 판단
 - Foundation Models: 만능 모델 (특정 task에 국한되지 않음)
 - Prompt engineering과 같은 새로운 직군 등장
 
-## 6. 딥러닝 기반 기초
+## 6. 딥러닝 기반 기초 (BERT 이전)
 ### 1. RNN
-- sequence-to-sequence: 입력-출력
+- sequence-to-sequence: 입력-출력. 기계번역(파파고)
 - 인코더: 입력 시퀀스를 받아 고정된 길이의 벡터로 변환. 문맥 벡터
 - 디코더: 문맥 벡터를 받아 출력 시퀀스를 순차생성. (auto regressive)
 - RNN(Recurrent Neural Networks): 시계열특성 다루는데에 효과적. 때문에 자연어처리에 효과적임 (이미지에는 CNN적합) 
@@ -137,8 +137,13 @@ $   : 특정 문자 범위로 끝나는지 판단
 ### 2. Attention
 - 문맥에 따라 집중할 단어를 결정하는 방식. Long-term dependancy해결
 - 시퀀스의 길이가 길수록 attention이 없으면 성능 저하
-- 
+- Seq2Seq RNN 구조 위에 Attention 구조를 추가한 형태. 디코더가 어디에 집중할지 반영하여 학습 고도화
 
+### 3. Transformer
+- "Attention is All you need" 논문에서 소개
+- Self-Attention: 같은 문장 내 토큰들끼리 어텐션 취함. RNN 존재하지 않음
+- Multi-head Attention: Attention(Query, Key, Value)을 여러 개 Head 로 나눠서 병렬로 계산
+- Positional Encoding: 입력 시퀀스의 단어들이 어떤 순서로 들어왔는지 에 대한 정보가 누락되기에 이를 보완. Input embedding 값에 더하여 인코더와 디코더의 입력값으로 입력
 
 
 
