@@ -297,5 +297,54 @@ $   : 특정 문자 범위로 끝나는지 판단
 - 성급히 결론으로 도달하기 전에 모델에게 자체적, 단계적으로 해결책을 찾도록 지시
 - 구체적인 검증 절차를 명시함으로써 정답 도출
 
+---
+## 12. LLM 실습
+### 1. 공개된 모델 checkpoint 활용
+- 직접 load
+```
+# transformers 패키지에 이미 선언되어 있는 Class 를 활용하여 모델의 checkpoint 를 load 
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
+import torch
+
+tokenizer = GPT2Tokenizer.from_pretrained("gpt2") # tokenizer load
+model = GPT2LMHeadModel.from_pretrained("gpt2") #model checkpoint load
+
+# model 에 특화된 class 를 써도 되지만, 자동으로 load 할 수 있는 AutoTokenizer, AutoModel 사용 가능
+from transformers import AutoTokenizer, AutoModelForCausalLM
+checkpoint = "gpt2"
+model = AutoModelForCausalLM.from_pretrained(checkpoint)
+tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+```
+
+- pipeline 활용
+```
+# 텍스트 생성 task
+from transformers import pipeline, set_seed
+generator = pipeline('text-generation', model='gpt2')
+set_seed(42)
+# max_length : 생성할 문장의 최대 길이
+# num_return_sequences : 몇 개의 후보 문장을 생성할 것인지
+generator("Hello, I'm a language model,", max_length=50, num_return_sequences=10)
+```
+
+### 2. chat-gpt 활용
+- web
+- api
+```
+import openai
+
+openai.api_key = "개인 API Key 입력"
+def get_completion(prompt, model="gpt-3.5-turbo"):
+    messages = [{"role": "user", "content": prompt}]
+    response = openai.ChatCompletion.create(
+        model='gpt-3.5-turbo', #['gpt-3.5-turbo', 'gpt-4', 'davinci-002' : GPT3 ]
+        messages=messages,
+        temperature=0, # 모델의 결과물이 실행할 때마다 달라지는 정도
+    )
+    return response.choices[0].message["content"]
+
+prompt = "입력"
+get_completion(prompt)
+```
 
 
