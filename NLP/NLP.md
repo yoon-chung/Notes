@@ -259,6 +259,43 @@ $   : 특정 문자 범위로 끝나는지 판단
 | 강점 | 이해(분류, NER, QA) | 생성(텍스트 생성) | 이해+생성(요약, 번역) |
 | 대표 활용 | 감성분석, 개체명인식 | 챗봇, 코드생성 | 문서요약, 기계번역 |
 
+--- 
+
+## 10. NLP 트렌드
+### 1. Scaling Laws
+- 모델 성능에 영향을 주는 요인:
+  - 1. 모델 파라미터 수 N (Parameters) - 임베딩 제외 모델 파라미터 수
+  - 2. 학습에 사용된 데이터의 크기 D (Dataset Size)
+  - 3. 학습에 필요한 컴퓨팅 양 C (Compute)
+- 최적의 성능 향상을 위해, 요인 3가지 함께 Scaling up
+- 특히, N 과 D 를 동시 Scaling up한다면 성능은 예측가능하게 개선 가능
+- 큰 모델일 수록 더 적은 학습 단계, 더 적은 데이터에서 동일한 수준의 성능 달성 가능
+  
+### 2. RLHF (Reinforcement Learning by Human Feedback)
+- 언어 모델을 크게 만든다고 해서 무조건 사용자의 의도를 더 잘 따르는 것은 아님
+- Reinforcement Learning : 사람을 통해 구축한 데이터를 바탕으로 모델을 강화학습함으로써 다양한 Task에 대해
+사용자의 의도를 따르는 모델을 학습하는 기법
+  - 1. SFT (Supervised Fine-tuning)
+    - 구축된 데이터를 바탕으로 기존의 GPT 모델을 Fine-Tuning (Supervised Learning)
+  - 2. RM (Reward Model)
+    - Labeler에게 여러 개 응답 중 순위를 매기게 함. 여러 응답 중 어떤 응답이 더 좋은 응답인지 판단하는 Reward Model 학습
+  - 3. RL (Reinforcement Learning)
+    - Reward Model의 점수를 사용하여 사용자가 더 선호하는 응답에는 Reward(보상), 덜 선호하는 응답에는 Penalty(벌칙)을 주어 학습
+   
+--- 
+
+## 11. Prompt Engineering
+### 1. 명확하고 구체적인 Prompt 작성
+- 구분자 사용: """, ```, <>,---, <tag> </tag>
+- 구조화된 출력 요청: HTML, JSON
+- 조건문 포함: 조건 충족을 확인하는 프롬프트를 추가. 조건이 충족되지 않았을 때의 행동을 명시
+- Few-Shot Prompting
+
+### 2. 작업 단계 명시
+- 예시 : 하나의 이야기를 요약, 번역, JSON 형식으로 출력하는 여러 지시 사항을 수행하는 Prompt
+- 구체적인 지시와 응답 형식 지정
+- 성급히 결론으로 도달하기 전에 모델에게 자체적, 단계적으로 해결책을 찾도록 지시
+- 구체적인 검증 절차를 명시함으로써 정답 도출
 
 
 
