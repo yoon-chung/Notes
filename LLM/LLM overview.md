@@ -1,7 +1,7 @@
 # [LM to LLM] Large Language Model 이란?
 ---
 
-## 01. Large Language Model 개요
+## 1. Large Language Model 개요
 
 ### 1.1 LLM의 정의
 
@@ -44,7 +44,7 @@
 
 ---
 
-## 02. Large Language Model의 방향성
+## 2. Large Language Model의 방향성
 
 ### 2.1 Data & Size
 
@@ -124,3 +124,114 @@
 
 - **빠른 적응(Rapid Adaptation)**: 검색 패러다임 변화 (키워드 → Instruct 방식)
 - **LLM의 약점 공략**: Reasoning, Commonsense, Hallucination, Expert Knowledge, Ethics
+
+---
+## 3. LLM 이론
+
+### 3.1 In-Context Learning (ICL)
+
+#### Fine-Tuning vs In-Context Learning
+
+| 구분 | Fine-Tuning | In-Context Learning |
+|---|---|---|
+| 파라미터 업데이트 | O (전체 또는 일부) | X |
+| 학습 데이터 필요량 | 상대적으로 많음 | 0~수 개의 예시 |
+| 메모리 방식 | Parametric memory | Non-parametric memory |
+| 적용 방식 | 모델 가중치 변경 | 프롬프트에 예시 포함 |
+
+#### N-Shot Learning
+
+- **Zero-shot**: 예시 없이 지시문만으로 태스크 수행. GPT-2 논문에서 독해, 번역, 요약 등에서 상당한 성능을 보임.
+- **One-shot**: 하나의 예시 + 지시문 제공. 사람의 소통 방식과 가장 유사.
+- **Few-shot**: 여러 예시 제공. 태스크 특화 데이터 필요성을 크게 줄여줌.
+
+**핵심 인사이트**: 모델 크기가 클수록, 예시 수가 많을수록 ICL 성능이 향상됨. Chain-of-Thought prompting처럼 프롬프트 설계도 성능에 큰 영향을 미침.
+
+---
+
+### 3.2 ChatGPT 학습 방법
+
+#### 3단계 학습 파이프라인
+
+##### Step 1: SFT (Supervised Fine-Tuning)
+- 지시문(prompt)과 이상적인 응답 쌍으로 구성된 demonstration dataset(약 13K) 구축
+- 라벨러가 프롬프트에 적합한 응답을 직접 작성
+- 이 데이터로 GPT-3를 fine-tuning → SFT 모델 생성
+- 지시를 따르는 능력이 기존 GPT-3보다 향상되나 완벽하지는 않음
+
+##### Step 2: Reward Model (RM) 학습
+- SFT 모델이 하나의 프롬프트에 대해 여러 응답(4~9개)을 생성
+- 라벨러가 응답들에 대해 선호도 순위를 매김 (comparison dataset, 약 33K)
+- 이 데이터로 사람의 선호도를 예측하는 보상 모델을 학습
+
+##### Step 3: RLHF (Reinforcement Learning from Human Feedback)
+- PPO(Proximal Policy Optimization) 알고리즘 사용
+- SFT 모델이 응답을 생성 → RM이 보상 점수를 부여 → 보상을 최대화하는 방향으로 정책 업데이트
+- 결과적으로 사람이 선호하는, 유용하고 안전한 응답을 생성하도록 최적화
+
+#### Instruction Tuning
+- 기존 LM은 다음 토큰 예측에 최적화되어 있어 사람의 지시를 잘 따르지 못함
+- Instruction Tuning은 명령을 따르도록 모델을 fine-tuning하는 방식
+- InstructGPT(2022.01)에서 제안된 실험 방식이 ChatGPT에 반영됨
+
+#### 프롬프트 활용 팁
+- **Persona Injection**: 역할 부여 (예: "너는 면접관이다")
+- **프롬프트 4요소**: 지시사항, 참고 데이터, 출력 형식, 사용자 입력
+- **3Cs Framework**: Clarity(명확성), Context(맥락), Constraints(제약조건)
+- 짧고 간결하게 작성하고, 출력 형태를 지정하며, 구역을 나누어 복잡한 프롬프트를 구조화
+
+---
+
+### 3.3 Parameter Efficient Fine-Tuning (PEFT)
+
+#### PEFT가 필요한 이유
+- LLM이 커지면서 전체 파라미터를 fine-tuning하는 것이 하드웨어적으로 불가능해짐
+- Fine-tuned 모델의 크기가 원본과 동일하여 저장/배포 비용이 큼
+- Catastrophic forgetting 문제 완화 가능
+
+#### 주요 PEFT 기법들
+
+##### Prefix-Tuning
+- 각 Transformer 레이어 입력 앞에 학습 가능한 task-specific 벡터(prefix)를 추가
+- LM 파라미터는 고정, prefix만 학습
+- 하나의 LM으로 prefix를 바꿔가며 여러 태스크 처리 가능
+
+##### Prompt Tuning
+- 입력 텍스트 앞에 추가되는 k개의 soft token embedding만 학습
+- 모델 전체는 freeze 상태 유지
+- 모델 크기가 클수록 full fine-tuning과 성능 차이가 줄어듦
+
+##### P-Tuning
+- Prompt Encoder(Bi-LSTM)를 사용해 continuous prompt embedding 생성
+- Anchor token을 추가하여 성능 개선
+- GPT 스타일 모델에서도 BERT 수준의 NLU 성능 달성
+
+##### LoRA (Low-Rank Adaptation)
+- 사전학습 가중치를 고정하고, 저랭크 행렬 분해를 통한 어댑터만 학습
+- `h = W₀x + BAx` (B, A가 저랭크 행렬)
+- 추론 시 추가 지연 없음 (기존 가중치에 합산 가능)
+- GPT-3 175B 기준 전체의 0.01% 파라미터만으로 유사 성능 달성
+
+##### QLoRA (Quantized LoRA)
+- 사전학습 모델을 4-bit로 양자화하여 저장
+- LoRA 어댑터는 16-bit로 학습 유지
+- 단일 48GB GPU에서 65B 모델 fine-tuning 가능
+- 16-bit full fine-tuning과 거의 동일한 성능
+
+##### IA3
+- Attention의 Key, Value와 FFN 출력에 학습 가능한 rescaling 벡터를 적용
+- LoRA보다 더 적은 파라미터로 높은 성능
+- GPT-3 ICL보다도 우수한 결과
+
+##### LLaMA-Adapter
+- 상위 Transformer 레이어에만 학습 가능한 프롬프트 토큰 삽입
+- 1.2M 파라미터, 1시간 학습으로 instruction-following 능력 부여
+- Visual encoder와 결합하여 멀티모달 지원 가능
+
+#### Quantization (양자화)
+- 모델 파라미터를 낮은 비트(예: FP32 → INT8)로 변환하는 경량화 기법
+- 주 목적: 추론 시간 및 메모리 사용량 감소
+- 신경망 파라미터가 정규분포를 따르는 특성을 활용하여 분위수 기반 양자화 수행
+
+---
+
