@@ -255,3 +255,75 @@ Precision과 Recall은 일반적으로 트레이드오프 관계에 있어, 둘 
 **한계**: 관련도에 대한 다단계 레이블링이 필요하여 정답셋 구축 비용이 상대적으로 높다.
 
 ---
+
+## 3-1. Elasticsearch 개념
+
+### 1.1 Elasticsearch 기본 개념
+
+#### 1.1.1 주요 특징
+
+Elasticsearch는 실시간으로 대규모 데이터를 분석·검색할 수 있는 분산형 검색 및 분석 엔진이다.
+
+- **분산형 아키텍처**: 데이터를 자동으로 여러 노드에 분산 저장하여 높은 가용성을 보장하고, 복제본을 통해 장애 시 데이터 손실을 방지
+- **실시간 검색 및 분석**: 실시간 색인과 검색을 지원하며, 풀 텍스트 검색과 다양한 쿼리 언어를 통한 복잡한 검색이 가능
+- **확장성 및 유연성**: 노드 추가로 손쉽게 수평 확장이 가능하며, 스키마리스(schema-less) 방식으로 다양한 유형의 데이터를 유연하게 처리
+- **통합 솔루션**: Elastic Stack(Logstash, Kibana 등)과 결합하여 데이터 수집부터 시각화까지 full-stack을 지원
+
+#### 1.1.2 RDBMS와의 용어 비교
+
+| RDBMS | Elasticsearch |
+|-------|---------------|
+| Database | Search Engine |
+| Table | Index |
+| Row | Document |
+| Column | Field |
+| Schema | Mapping (type) |
+| SQL | Query DSL |
+
+Custom mapping을 생략하면 유입 데이터를 기반으로 동적으로 기본 스키마가 생성된다.
+
+#### 1.1.3 데이터 구조
+
+- **인덱스(Index)**: 독립적인 문서 구조를 가진 문서 집합의 저장 단위
+- **타입(Type)**: 문서의 각 필드 구조(타입)
+- **매핑(Mapping)**: 각 필드별 타입의 전체적인 매핑 구조 설정
+- **문서(Document)**: 필드로 이루어진 색인의 단위 정보
+
+#### 1.1.4 분산 컴포넌트 구조 (Sharding & Replication)
+
+- **Shard**: 인덱스를 구성하는 물리적 단위. 인덱스가 샤드 단위로 분리되어 여러 노드에 분산 저장되며, 샤드 수 조정으로 검색 속도를 튜닝할 수 있다.
+- **Replica**: 처리량 증가와 노드 장애 시 데이터 신뢰성 확보를 위해 샤드를 복제한 것. 서로 다른 노드에 골고루 분배되어 저장된다.
+
+
+### 1.2 문서 색인
+
+#### 1.2.1 색인 설정과 매핑
+
+- **Dynamic Mapping**: 별도 설정 없이 유입 데이터를 기반으로 자동 매핑 생성
+- **Explicit Mapping**: 필드별로 원하는 타입(integer, keyword, text 등)을 명시적으로 설정하여 색인
+
+#### 1.2.2 형태소 분석기 활용
+
+한국어의 경우 기본 토크나이저로는 원하는 검색 성능을 얻기 어려우므로 형태소 분석기를 사용해야 한다. Elasticsearch에서는 한국어 형태소 분석기 **Nori**를 제공하며, nori_tokenizer와 nori_part_of_speech 필터를 조합하여 어미, 조사, 구분자 등 불필요한 품사를 제거할 수 있다.
+
+
+### 1.3 문서 검색
+
+#### 1.3.1 Query DSL
+
+Elasticsearch는 JSON 기반의 Query DSL(Domain Specific Language)을 사용하여 쿼리를 정의한다.
+
+- **구문 타입** (트리 형태로 구성 가능):
+  - Leaf query clauses — 특정 필드에 대해 원하는 조건으로 검색 수행
+  - Compound query clauses — Leaf 또는 다른 Compound 절을 감싸는 복합 구문
+- **사용 형태**:
+  - Query context — 문서 추출 시 relevance score를 함께 계산
+  - Filter context — 조건에 맞는 문서만 추출하고 score 계산은 하지 않음
+- **Expensive query**: fuzzy, regex, prefix, wildcard, range, script_score 등 추가 지원
+
+#### 1.3.2 검색 결과 확인
+
+Query DSL로 구성한 쿼리를 REST API로 호출하여 결과를 얻는다.
+
+- **요청 시 옵션**: 대상 인덱스, 검색 결과 최대 개수, timeout 등
+- **응답 정보**: Top-k 적합 문서 리스트, 문서별 relevance score, 전체 매칭 문서 수, 샤드·timeout 등 메타 정보
