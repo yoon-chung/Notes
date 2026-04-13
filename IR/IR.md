@@ -327,3 +327,75 @@ Query DSL로 구성한 쿼리를 REST API로 호출하여 결과를 얻는다.
 
 - **요청 시 옵션**: 대상 인덱스, 검색 결과 최대 개수, timeout 등
 - **응답 정보**: Top-k 적합 문서 리스트, 문서별 relevance score, 전체 매칭 문서 수, 샤드·timeout 등 메타 정보
+
+--- 
+## 4-1. Vector Similarity
+
+### 1.1 임베딩 생성
+
+#### 1.1.1 임베딩 방식의 진화 과정
+
+**임베딩이란?**
+- 단어나 문장을 고차원의 실수 벡터로 변환하는 기법
+- 벡터 간 산술 연산이 가능하며, 이를 통해 단어·문장 간 유사도를 정량적으로 측정할 수 있음
+
+**Word2Vec**
+- 학습 기반 임베딩의 초기 대표 모델
+- 핵심 아이디어: 함께 등장하는(co-occurring) 단어들이 벡터 공간에서 가까이 위치하도록 학습
+- 두 가지 구조: CBOW(주변 단어 → 중심 단어 예측), Skip-gram(중심 단어 → 주변 단어 예측)
+
+**Word2Vec 확장 모델들**
+
+| 모델 | 핵심 아이디어 |
+|------|------------|
+| Doc2Vec | 문장·문단·문서 단위까지 벡터화. 문서 ID를 추가 context로 활용 |
+| Top2Vec | 문서·단어 임베딩을 함께 사용하여 토픽 임베딩 생성. 차원 축소 후 클러스터 중심을 토픽 벡터로 활용 |
+| BioVectors | 단백질·DNA 등 생물학적 시퀀스에 n-gram 방식 적용 (ProtVec, GeneVec 등) |
+
+**컨텍스트 기반 임베딩의 등장**
+- Word2Vec의 한계: 단어마다 하나의 고정된 벡터만 존재 → 다의어(polysemy) 처리 불가
+- 해결: 주변 문맥에 따라 동적으로 임베딩을 생성하는 방식으로 발전
+
+| 모델 | 특징 |
+|------|------|
+| ELMo | 문맥 고려 임베딩의 시초. LSTM 기반 양방향 언어 모델 |
+| ULM-FiT | pre-training → fine-tuning 패러다임을 확립. 다양한 downstream task 적용 가능 |
+| OpenAI Transformer | Transformer decoder 구조. 다음 토큰 예측(autoregressive) 방식 |
+| BERT | Transformer encoder 구조. 양방향 문맥을 동시에 반영하여 높은 성능 달성 |
+
+#### 1.1.2 Pre-trained 모델 활용
+
+- BERT는 임베딩 생성뿐 아니라 다양한 NLP task에 범용적으로 활용 가능
+  - 문장 쌍 분류 (MNLI, QQP, STS-B 등)
+  - 단일 문장 분류 (SST-2, CoLA)
+  - 질의응답 (SQuAD)
+  - 개체명 인식 (CoNLL NER) 등
+
+
+### 1.2 Vector Similarity
+
+#### 1.2.1 IR을 위한 임베딩 활용
+
+**Pre-trained BERT를 직접 사용하는 방식**
+- CLS 토큰 임베딩 또는 전체 토큰 임베딩의 평균값을 문서·질의의 벡터 표현으로 사용
+- 질의와 문서를 각각 독립적으로 인코딩한 뒤 벡터 유사도(코사인 유사도 등)를 계산
+- **한계**: 질의-문서 간 유사도를 직접 학습한 것이 아니므로 검색 성능이 제한적
+
+**Fine-tuning을 통한 개선 (Cross-Encoder)**
+- 질의와 문서를 하나의 입력으로 결합: `[CLS] query [SEP] document [SEP]`
+- BERT 내부에서 질의-문서 간 상호작용(cross-attention)이 발생
+- CLS 토큰 출력에 MLP를 붙여 관련도 점수를 산출
+- 질의-문서 pair 데이터로 fine-tuning하면 유사도 성능이 크게 향상됨
+
+#### 1.2.2 기본 모델의 한계
+
+BERT cross-encoder 방식은 정확도는 높지만 실용적 한계가 존재:
+
+1. **학습 데이터 구축 비용**: 고품질 질의-문서 pair 데이터를 대량으로 만드는 데 높은 비용 소요
+2. **추론 속도 문제**: 모든 질의-문서 조합을 모델에 통과시켜야 하므로 inference 비용이 매우 큼. 문서 수가 수천 건만 넘어도 실시간 서비스가 어려움
+3. **실서비스 적용의 어려움**: cross-encoder는 주로 reranking 단계에서 소규모로 활용되며, 대규모 검색에는 DPR·SentenceBERT 등 **bi-encoder** 방식이 사용됨
+
+> **Cross-Encoder vs Bi-Encoder**
+> - Cross-Encoder: 질의+문서를 하나의 모델에 함께 입력 → 높은 정확도, 느린 속도
+> - Bi-Encoder: 질의와 문서를 별도 인코더로 독립 임베딩 → 사전 인덱싱 가능, 빠른 검색
+
