@@ -487,3 +487,78 @@ BERT cross-encoder 방식은 정확도는 높지만 실용적 한계가 존재:
 | 실서비스 적용 | reranking 단계에 제한적 활용 | 1차 retrieval 단계에 적합 |
 
 
+## 4-3. 상용 벡터 인코더 분석
+
+### 3.1 Sentence Transformers
+
+#### 3.1.1 인코딩모델- Sentence-BERT
+
+##### 3.1.1.1 Siamese Network 구조
+- Sentence-BERT(SBERT)는 Siamese 네트워크 구조를 채택한 Bi-encoder 모델
+- 두 개의 BERT 네트워크를 사용하되 가중치(weight)를 공유하는 방식으로 설계
+- Pre-trained BERT(또는 RoBERTa)를 기반으로 유사도 중심의 fine-tuning을 수행
+
+##### 3.1.1.2 학습 방식
+- 유사도 기반 손실 함수를 활용하여 fine-tuning 진행
+- 세 가지 목적 함수를 실험:
+  - **Classification**: 두 문장 임베딩 u, v와 차이 |u-v|를 결합하여 softmax 분류
+  - **Regression**: 두 문장 임베딩 간 코사인 유사도를 직접 회귀
+  - **Triplet**: anchor, positive, negative 사이의 거리 마진을 학습
+
+##### 3.1.1.3 임베딩 추출 및 학습 데이터
+- 임베딩 추출: CLS 토큰 임베딩 또는 전체 토큰 임베딩의 평균(mean pooling) 두 가지 방식 모두 실험
+- 학습 데이터: SNLI(약 570K 문장쌍, 함의/모순/중립 레이블)와 MultiNLI(약 430K 문장쌍) 활용
+
+##### 3.1.1.4 성능 특징
+- 문장 간 비교가 핵심인 태스크(STS, NER 등)에서 기존 BERT 기반 방법들보다 우수한 성능을 보이는 경향
+- 학습 단계에서는 Siamese 구조로 쌍별 학습, 추론 단계에서는 코사인 유사도로 빠르게 비교 가능
+
+#### 3.1.2 SBERT 인코더 활용
+
+##### 3.1.2.1 Sentence Transformers 프레임워크
+- Python 라이브러리(`sentence-transformers`)로 제공되어 간편하게 사용 가능
+- 모델 로드 후 `model.encode()` 호출만으로 문장 임베딩 생성
+
+##### 3.1.2.2 Hugging Face 모델 허브
+- Hugging Face를 통해 500개 이상의 사전 학습된 모델이 공유되고 있음
+- 100개 이상의 언어에 대한 임베딩 생성을 지원
+- 공유된 모델을 그대로 사용하거나, 특정 도메인에 맞게 추가 fine-tuning 가능
+
+
+### 3.2 OpenAI 임베딩
+
+#### 3.2.1 인코딩모델-Contrastive Pre-Training
+
+##### 3.2.1.1 학습 방법
+- Unsupervised Contrastive Learning으로 Transformer encoder를 학습
+- 짝지어진 문장(pair)으로 배치를 구성하고, positive pair 간 유사도는 높이고 나머지 pair 간 유사도는 낮추는 방식
+- 웹 상의 대규모 텍스트 데이터를 활용하여, 연속되는 문장을 자연스러운 positive pair로 사용
+
+##### 3.2.1.2 모델 구조 및 성능
+- SBERT와 유사한 Bi-encoder 구조를 기반으로 함
+- 핵심 차별점: 모델 크기와 학습 데이터의 양을 대폭 확장(300M ~ 175B 파라미터)
+- 모델 규모가 커질수록 분류·검색·유사도 태스크에서 성능이 일관되게 향상되는 경향을 보임
+
+#### 3.2.2 OpenAI 인코더 활용
+
+##### 3.2.2.1 사용 방식
+- Python, Node.js 클라이언트 또는 HTTP 요청을 통해 API 형태로만 사용 가능
+- 모델 자체를 다운로드하거나 fine-tuning하는 것은 불가능
+
+##### 3.2.2.2 주요 특징
+- 임베딩 차원이 1536으로 비교적 큰 편 → 유사도 계산 속도가 상대적으로 느림
+- 대신 최대 8K 토큰까지 긴 입력을 처리할 수 있어 장문 문서에 유리
+- 다국어를 지원하지만 영어에 최적화된 성능
+- 유료 API로 제공됨
+
+### SBERT vs OpenAI Embeddings 비교 요약
+
+| 구분 | Sentence-BERT | OpenAI Embeddings |
+|------|--------------|-------------------|
+| 모델 접근 | 오픈소스, 로컬 실행 가능 | API 전용, 클라우드 호출 필수 |
+| Fine-tuning | 가능 (도메인 적응 용이) | 불가능 |
+| 임베딩 차원 | 모델별 상이 (384~768 등) | 1536 (고차원) |
+| 최대 입력 길이 | 모델별 상이 (일반적으로 512 토큰) | 최대 8K 토큰 |
+| 다국어 지원 | 다국어 모델 다수 공유 | 다국어 지원, 영어 최적화 |
+| 비용 | 무료 (로컬 GPU 비용만) | 유료 (토큰당 과금) |
+
